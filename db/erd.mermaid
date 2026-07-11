@@ -1,0 +1,53 @@
+erDiagram
+  %% Clarity Path — domain-level ERD (key tables; 89 total in schema)
+  users ||--o{ household_memberships : "belongs via"
+  households ||--o{ household_memberships : has
+  households ||--o{ care_recipients : "cares for"
+  households ||--o{ invitations : issues
+  users ||--o{ consents : grants
+
+  care_recipients ||--o{ observations : about
+  observations ||--o{ observation_contexts : "context factors"
+  care_recipients ||--o{ medications : takes
+  medications ||--o{ medication_events : logs
+  care_recipients ||--o{ appointments : attends
+  appointments ||--o{ appointment_questions : asks
+  appointments ||--o{ appointment_observations : selects
+  appointments ||--o{ clinician_briefs : generates
+  clinician_briefs ||--o{ clinician_share_links : "shared via"
+  households ||--o{ tasks : coordinates
+  households ||--o{ decisions : records
+  households ||--o{ family_updates : posts
+  households ||--o{ caregiver_checkins : "checks in"
+  safety_checkup_templates ||--o{ safety_assessments : instantiates
+  safety_assessments ||--o{ safety_responses : answers
+  roadmap_templates ||--o{ roadmap_items : instantiates
+  households ||--o{ documents : stores
+  documents ||--o{ document_versions : versions
+  documents ||--o{ document_access_events : audits
+
+  source_connectors ||--o{ source_queries : runs
+  source_queries ||--o{ source_query_versions : versions
+  source_connectors ||--o{ ingestion_runs : executes
+  source_connectors ||--o{ source_records : fetches
+  source_records }o--o{ content_items : "feeds (content_sources)"
+  content_items ||--o| research_papers : subtype
+  content_items ||--o| clinical_trials : subtype
+  clinical_trials ||--o{ clinical_trial_locations : at
+  clinical_trials ||--o{ clinical_trial_changes : tracks
+  content_items ||--o| research_grants : subtype
+  content_items ||--o| regulatory_updates : subtype
+  content_items ||--o| news_mentions : subtype
+  content_items }o--o{ topics : "tagged (content_topics)"
+  story_clusters ||--o{ story_cluster_members : groups
+  content_items ||--o{ evidence_assessments : classified
+  content_items ||--o{ generated_summaries : summarized
+  generated_summaries ||--o{ generated_claims : traces
+  prompt_versions ||--o{ generated_summaries : "prompted by"
+  content_items ||--o{ content_reviews : reviewed
+
+  users ||--o{ user_topic_preferences : follows
+  users ||--o{ followed_trials : follows
+  users ||--o{ saved_content : saves
+  users ||--o{ notifications : receives
+  notifications ||--o{ notification_deliveries : "delivered via"
