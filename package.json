@@ -1,0 +1,14 @@
+{
+  "name": "clarity-path",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "start": "pnpm --filter web start",
+    "typecheck": "pnpm -r typecheck",
+    "db:migrate": "bash scripts/db-migrate.sh",
+    "db:seed": "psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f db/seed.sql",
+    "db:check": "psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f db/tests/schema_checks.sql",
+    "smoke": "node scripts/smoke.mjs"
+  }
+}

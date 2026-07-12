@@ -26,3 +26,17 @@
 10. **Care data and research data share a database but never a table.** No FK path
     from research content into observation/medication/document tables except via
     user-initiated saves (saved_content, appointment_questions).
+
+11. **Drizzle introspected from SQL, not the reverse.** drizzle-kit pull generated
+    packages/db models from the live schema; citext maps to text and tsvector
+    columns are omitted from TS models (the DB maintains them; search will use
+    raw SQL).
+12. **Fonts self-hosted via Fontsource** (Fraunces display, Atkinson
+    Hyperlegible body — chosen for low-vision readability). No Google Fonts
+    requests from a health product.
+13. **Dev login is the first half of the auth abstraction**: cookie session in
+    lib/session.ts + server actions. Auth0 replaces internals only; pages call
+    requireSession() and never know the provider.
+14. **This slice is deliberately read-only.** Rendering real tenant-scoped data
+    end-to-end proves schema + access layer + shell; write paths are the next
+    vertical slice and arrive with validation + audit_events writes.

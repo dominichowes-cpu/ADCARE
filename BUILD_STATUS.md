@@ -35,6 +35,41 @@ continued in Claude Code against the ADCARE repo using the master build prompt.
       tenant-cascade isolation + rollback, trial-change join)
 - [x] db/erd.mermaid, db/README.md, SECURITY_AND_PRIVACY.md
 
-## Not started (next session, in Claude Code)
-- Monorepo scaffold, auth abstraction, app shell, admin shell, source connectors,
-  workers, AI pipeline, tests, CI, docker-compose
+## Done (session 3 — Phase 2 start: working web app slice)
+- [x] pnpm workspace monorepo: apps/web (Next.js 15 App Router, TS, Tailwind v4),
+      packages/db (Drizzle models introspected from the live SQL schema)
+- [x] Read-only app shell over seeded data: dashboard, care recipient,
+      observations timeline, medications, appointments (+questions),
+      documents vault, research feed (evidence badges), settings
+- [x] Dev auth abstraction: cookie session + demo-user login page; every app
+      route guarded (unauthenticated -> /login); Auth0 slots in behind
+      lib/session.ts + app/login/actions.ts without page changes
+- [x] Self-hosted fonts (Fontsource: Fraunces, Atkinson Hyperlegible) — no
+      Google Fonts requests at runtime (privacy win for a health product)
+- [x] docker-compose (Postgres 16), .env.example, root scripts
+      (db:migrate / db:seed / db:check / typecheck / smoke)
+- [x] VERIFIED: production build clean; typecheck clean (web + db packages);
+      scripts/smoke.mjs green — auth guard redirect + all 8 pages render
+      seeded content end-to-end against live Postgres
+
+## Codex import verification — 2026-07-12
+- [x] Imported Phase 2 monorepo into ADCARE and regenerated pnpm-lock.yaml
+      under pnpm 11 supply-chain policy.
+- [x] Added workspace overrides for postcss and caniuse-lite to avoid
+      same-day transitive package releases rejected by minimum-release-age.
+- [x] Added pnpm build approvals for native dependencies used by Next.js
+      tooling (esbuild, sharp, unrs-resolver).
+- [x] Switched Next scripts from Turbopack to stable Next dev/build after
+      Turbopack hit a sandbox process/port panic during production build.
+- [x] Added fixture data mode for local UI testing without Docker/Postgres:
+      if DATABASE_URL is absent, or CLARITY_DATA_MODE=fixture is set, the app
+      renders fictional in-memory demo data while preserving the Postgres path.
+- [x] VERIFIED locally: pnpm install, pnpm typecheck, pnpm --filter web lint,
+      pnpm build, and pnpm smoke against http://127.0.0.1:3000 in fixture mode.
+
+## Not started
+- Write paths (create/edit observations, tasks, meds, appointments) — app is
+  read-only this slice
+- Auth0 production auth, invitations flow, role-based UI differences
+- Admin app, source connectors, workers/queues, AI pipeline, notifications,
+  clinician briefs/PDF, document upload/storage, Playwright tests, CI
