@@ -13,6 +13,7 @@ const checks = [
   ["/documents", "Documents", cookie],
   ["/research", "Research", cookie],
   ["/settings", "Care circle", cookie],
+  ["/observations/new", "New observation", cookie],
 ];
 
 let failed = 0;

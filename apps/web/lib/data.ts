@@ -1,4 +1,5 @@
 import type { Session } from "@/lib/session";
+import type { ObservationInput } from "@/lib/validation";
 import {
   db,
   appointments,
@@ -12,6 +13,7 @@ import {
   households,
   medicationEvents,
   medications,
+  auditEvents,
   observationContexts,
   observations,
   tasks,
@@ -291,6 +293,15 @@ const fixture = {
   },
 };
 
+type FixtureObservation = (typeof fixture.observations)[number];
+
+const globalForFixtures = globalThis as unknown as {
+  fixtureObservations?: FixtureObservation[];
+};
+
+const fixtureObservations = globalForFixtures.fixtureObservations ?? fixture.observations;
+globalForFixtures.fixtureObservations = fixtureObservations;
+
 export function usingFixtureData(): boolean {
   return process.env.CLARITY_DATA_MODE === "fixture" || !process.env.DATABASE_URL;
 }
@@ -381,7 +392,7 @@ export async function getDashboardData(session: Session) {
     return {
       nextAppt: fixture.nextAppointment,
       openTasks: fixture.openTasks,
-      recentObs: fixture.observations.slice(0, 3),
+      recentObs: fixtureObservations.slice(0, 3),
       update: fixture.familyUpdate,
     };
   }
@@ -427,7 +438,7 @@ export async function getDashboardData(session: Session) {
 export async function getCareRecipientStats(session: Session) {
   if (usingFixtureData()) {
     return {
-      observations: fixture.observations.length,
+      observations: fixtureObservations.length,
       medications: fixture.medications.length,
       documents: fixture.documents.length,
       appointments: fixture.upcomingAppointments.length,
@@ -468,7 +479,7 @@ export async function getCareRecipientStats(session: Session) {
 export async function getObservationsData(session: Session) {
   if (usingFixtureData()) {
     return {
-      rows: fixture.observations,
+      rows: fixtureObservations,
       contextsByObservation: fixture.observationContexts,
     };
   }
@@ -632,4 +643,66 @@ export async function getSettingsData(session: Session) {
     .where(eq(householdFeedPreferences.householdId, hh));
 
   return { members, prefs: prefs ?? null };
+}
+
+// ---------------------------------------------------------------------------
+// Writes
+// ---------------------------------------------------------------------------
+
+export type CreateObservationResult =
+  | { ok: true; fixture: boolean }
+  | { ok: false; message: string };
+
+export async function createObservation(
+  session: Session,
+  input: ObservationInput,
+): Promise<CreateObservationResult> {
+  if (usingFixtureData()) {
+    // Fixture mode keeps entries in server memory only: the new observation
+    // appears in the list immediately and disappears on restart. Nothing is
+    // persisted, which is exactly right for a preview mode.
+    fixtureObservations.unshift({
+      id: `fixture-obs-${Date.now()}`,
+      category: input.category,
+      description: input.description,
+      observedAt: input.observedAt,
+      isRecurring: input.isRecurring,
+      functionalImpact: input.functionalImpact,
+      includeInBrief: input.includeInBrief,
+      observer: session.user.displayName,
+    });
+    fixtureObservations.sort((a, b) => b.observedAt.getTime() - a.observedAt.getTime());
+    return { ok: true, fixture: true };
+  }
+
+  if (!session.recipient) {
+    return { ok: false, message: "Add a care recipient to this household before recording observations." };
+  }
+
+  const inserted = await db
+    .insert(observations)
+    .values({
+      householdId: session.household.id,
+      careRecipientId: session.recipient.id,
+      category: input.category,
+      description: input.description,
+      observedAt: input.observedAt.toISOString(),
+      isRecurring: input.isRecurring,
+      functionalImpact: input.functionalImpact,
+      includeInBrief: input.includeInBrief,
+      observerMembershipId: session.membership.id,
+      createdBy: session.user.id,
+    })
+    .returning({ id: observations.id });
+
+  await db.insert(auditEvents).values({
+    actorUserId: session.user.id,
+    actorType: "user",
+    householdId: session.household.id,
+    eventType: "observation.created",
+    entityType: "observation",
+    entityId: inserted[0].id,
+  });
+
+  return { ok: true, fixture: false };
 }

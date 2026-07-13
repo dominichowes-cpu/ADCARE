@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireSession } from "@/lib/session";
 import { Chip, Empty, PageHeader } from "@/components/ui";
 import { fmtDateTime, observationCategoryLabels } from "@/lib/labels";
@@ -9,10 +10,18 @@ export default async function ObservationsPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Observations"
-        lede={`What the family has noticed about ${session.recipient?.preferredName ?? "your person"} — factual, dated, and in your own words. Patterns matter more than any single day.`}
-      />
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <PageHeader
+          title="Observations"
+          lede={`What the family has noticed about ${session.recipient?.preferredName ?? "your person"} — factual, dated, and in your own words. Patterns matter more than any single day.`}
+        />
+        <Link
+          href="/observations/new"
+          className="rounded-lg bg-teal px-5 py-2.5 font-bold text-paper hover:bg-teal-deep"
+        >
+          New observation
+        </Link>
+      </div>
       {rows.length ? (
         <ol className="relative ml-3 space-y-6 border-l-2 border-sage pl-6">
           {rows.map((o) => {

@@ -67,9 +67,42 @@ continued in Claude Code against the ADCARE repo using the master build prompt.
 - [x] VERIFIED locally: pnpm install, pnpm typecheck, pnpm --filter web lint,
       pnpm build, and pnpm smoke against http://127.0.0.1:3000 in fixture mode.
 
+## Done (session 4 — first write-enabled care workflow)
+- [x] /observations/new: create-observation form (category, description,
+      observed date/time via datetime-local, one-time vs recurring, optional
+      functional impact, include-in-clinician-brief)
+- [x] Server-side validation (lib/validation.ts, dependency-free): enum-checked
+      category, 3–2000 char description, date sanity (no future beyond 5-min
+      skew, none before 2000), 1000-char impact cap; per-field error messages
+      returned via useActionState without losing calm tone
+- [x] Write path (lib/data.ts createObservation) behind the same fixture/DB
+      boundary as reads:
+      · DB mode: INSERT into observations (household-, recipient-, membership-
+        and creator-scoped from session) + linked audit_events row
+        (observation.created)
+      · Fixture mode: entry is added to in-memory fixture data (appears in the
+        list, resets on restart); form shows an explicit preview-mode notice
+- [x] Navigation: "New observation" button on /observations, "Record one" link
+      on the dashboard's recent-observations card
+- [x] Smoke test extended with /observations/new
+
+## Verified (session 4)
+- pnpm typecheck: clean (web + db). pnpm --filter web lint: clean.
+  pnpm build: clean.
+- Fixture mode: full smoke suite green including the new route.
+- Codex import verification: browser-level fixture-mode form submission works
+  end-to-end; the submitted observation redirects back to /observations and
+  appears at the top of the timeline. Codex also fixed fixture writes to use a
+  shared in-process preview store so server actions and page renders see the
+  same temporary observations.
+- DB mode: full smoke suite green; write path exercised at function level
+  against live Postgres via the real validation + createObservation code
+  (invalid input rejected per-field; valid input produced a correctly scoped
+  observations row and a linked observation.created audit event; verification
+  row removed afterward and db:check re-passed).
+
 ## Not started
-- Write paths (create/edit observations, tasks, meds, appointments) — app is
-  read-only this slice
+- Remaining write paths (edit/delete observations; tasks, meds, appointments)
 - Auth0 production auth, invitations flow, role-based UI differences
 - Admin app, source connectors, workers/queues, AI pipeline, notifications,
   clinician briefs/PDF, document upload/storage, Playwright tests, CI

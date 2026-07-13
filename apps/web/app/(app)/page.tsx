@@ -53,7 +53,12 @@ export default async function Dashboard() {
           )}
         </Card>
         <Card>
-          <SectionTitle>Recent observations</SectionTitle>
+          <div className="flex items-baseline justify-between">
+            <SectionTitle>Recent observations</SectionTitle>
+            <Link href="/observations/new" className="text-[0.9rem] text-teal-deep underline underline-offset-4">
+              Record one
+            </Link>
+          </div>
           {recentObs.length ? (
             <ul className="space-y-3">
               {recentObs.map((o) => (
