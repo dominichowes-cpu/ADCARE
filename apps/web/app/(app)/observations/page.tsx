@@ -1,6 +1,5 @@
-import Link from "next/link";
 import { requireSession } from "@/lib/session";
-import { Chip, Empty, PageHeader } from "@/components/ui";
+import { ButtonLink, Chip, Empty, PageHeader } from "@/components/ui";
 import { fmtDateTime, observationCategoryLabels } from "@/lib/labels";
 import { getObservationsData } from "@/lib/data";
 
@@ -13,14 +12,13 @@ export default async function ObservationsPage() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <PageHeader
           title="Observations"
+          eyebrow="Pattern tracker"
+          icon="activity"
           lede={`What the family has noticed about ${session.recipient?.preferredName ?? "your person"} — factual, dated, and in your own words. Patterns matter more than any single day.`}
         />
-        <Link
-          href="/observations/new"
-          className="rounded-lg bg-teal px-5 py-2.5 font-bold text-paper hover:bg-teal-deep"
-        >
+        <ButtonLink href="/observations/new" icon="plus">
           New observation
-        </Link>
+        </ButtonLink>
       </div>
       {rows.length ? (
         <ol className="relative ml-3 space-y-6 border-l-2 border-sage pl-6">
@@ -32,7 +30,7 @@ export default async function ObservationsPage() {
                   aria-hidden
                   className={`absolute -left-[1.95rem] top-1.5 h-3 w-3 rounded-full ${positive ? "bg-teal" : "bg-clay"}`}
                 />
-                <div className={`rounded-xl border border-line p-4 ${positive ? "bg-sage-soft" : "bg-card"}`}>
+                <div className={`rounded-lg border border-line p-4 shadow-[0_14px_45px_rgba(27,42,65,0.05)] ${positive ? "bg-sage-soft" : "bg-card/95"}`}>
                   <div className="flex flex-wrap items-center gap-2">
                     <Chip tone={positive ? "sage" : "neutral"}>
                       {observationCategoryLabels[o.category] ?? o.category}

@@ -1,7 +1,16 @@
 import { requireSession } from "@/lib/session";
-import { Card, Chip, Empty, SectionTitle, PageHeader } from "@/components/ui";
+import {
+  ButtonLink,
+  Card,
+  CareMapVisual,
+  Chip,
+  Empty,
+  IconBadge,
+  SectionTitle,
+  StatPill,
+  TextLink,
+} from "@/components/ui";
 import { fmtDate, fmtDateTime, observationCategoryLabels, titleize } from "@/lib/labels";
-import Link from "next/link";
 import { getDashboardData } from "@/lib/data";
 
 export default async function Dashboard() {
@@ -13,13 +22,48 @@ export default async function Dashboard() {
 
   return (
     <div>
-      <PageHeader
-        title={`Welcome back, ${first}`}
-        lede={`Here is where things stand for ${who} today.`}
-      />
+      <section className="mb-8 overflow-hidden rounded-lg bg-ink-deep text-paper shadow-[0_24px_80px_rgba(17,27,44,0.22)]">
+        <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[1.15fr_0.85fr] lg:p-8">
+          <div className="flex flex-col justify-between gap-7">
+            <div>
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-paper/10 bg-paper/10 px-3 py-1 text-[0.78rem] font-bold uppercase tracking-[0.16em] text-gold-soft">
+                <span className="size-2 rounded-full bg-gold" />
+                Today&apos;s care picture
+              </div>
+              <h1 className="max-w-2xl font-display text-[2.4rem] leading-none sm:text-[3rem]">
+                Welcome back, {first}
+              </h1>
+              <p className="mt-4 max-w-2xl text-paper/68">
+                Here is where things stand for {who} today: visits, notes, tasks, and the details
+                that help the family arrive prepared.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <ButtonLink href="/observations/new" icon="plus" variant="secondary">
+                  Record observation
+                </ButtonLink>
+                <ButtonLink href="/appointments" icon="calendar" variant="inverted">
+                  Review appointments
+                </ButtonLink>
+              </div>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <StatPill label="Open tasks" value={openTasks.length} />
+              <StatPill label="Recent notes" value={recentObs.length} />
+              <StatPill label="Next visit" value={nextAppt ? fmtDate(nextAppt.startsAt) : "None"} />
+            </div>
+          </div>
+          <CareMapVisual />
+        </div>
+      </section>
       <div className="grid gap-5 md:grid-cols-2">
         <Card tint>
-          <SectionTitle>Next appointment</SectionTitle>
+          <div className="mb-4 flex items-start gap-3">
+            <IconBadge icon="calendar" tone="teal" />
+            <div>
+              <SectionTitle>Next appointment</SectionTitle>
+              <p className="text-[0.9rem] text-mist">The next visit to prepare for.</p>
+            </div>
+          </div>
           {nextAppt ? (
             <div>
               <p className="font-display text-xl">{nextAppt.clinicianName ?? "Appointment"}</p>
@@ -27,20 +71,26 @@ export default async function Dashboard() {
                 {nextAppt.specialty} · {nextAppt.location}
               </p>
               <p className="mt-2 font-bold">{fmtDateTime(nextAppt.startsAt)}</p>
-              <Link href="/appointments" className="mt-3 inline-block text-teal-deep underline underline-offset-4">
+              <TextLink href="/appointments" icon="chevronRight">
                 Prepare for this visit
-              </Link>
+              </TextLink>
             </div>
           ) : (
             <Empty>No upcoming appointments yet.</Empty>
           )}
         </Card>
         <Card>
-          <SectionTitle>Open tasks</SectionTitle>
+          <div className="mb-4 flex items-start gap-3">
+            <IconBadge icon="clipboard" tone="gold" />
+            <div>
+              <SectionTitle>Open tasks</SectionTitle>
+              <p className="text-[0.9rem] text-mist">Loose ends that need a person.</p>
+            </div>
+          </div>
           {openTasks.length ? (
             <ul className="space-y-2">
               {openTasks.map((t) => (
-                <li key={t.id} className="flex items-start justify-between gap-3">
+                <li key={t.id} className="flex items-start justify-between gap-3 rounded-lg border border-line/70 bg-paper/55 px-3 py-2">
                   <span>{t.title}</span>
                   <Chip tone={t.priority === "high" ? "amber" : "neutral"}>
                     {t.dueOn ? fmtDate(t.dueOn) : titleize(t.priority)}
@@ -54,15 +104,15 @@ export default async function Dashboard() {
         </Card>
         <Card>
           <div className="flex items-baseline justify-between">
-            <SectionTitle>Recent observations</SectionTitle>
-            <Link href="/observations/new" className="text-[0.9rem] text-teal-deep underline underline-offset-4">
+            <SectionTitle icon="activity">Recent observations</SectionTitle>
+            <TextLink href="/observations/new" icon="plus">
               Record one
-            </Link>
+            </TextLink>
           </div>
           {recentObs.length ? (
             <ul className="space-y-3">
               {recentObs.map((o) => (
-                <li key={o.id}>
+                <li key={o.id} className="rounded-lg border border-line/70 bg-paper/45 p-3">
                   <Chip tone={o.category === "positive_stable" ? "sage" : "neutral"}>
                     {observationCategoryLabels[o.category] ?? o.category}
                   </Chip>
@@ -76,7 +126,13 @@ export default async function Dashboard() {
           )}
         </Card>
         <Card>
-          <SectionTitle>Latest family update</SectionTitle>
+          <div className="mb-4 flex items-start gap-3">
+            <IconBadge icon="heart" tone="clay" />
+            <div>
+              <SectionTitle>Latest family update</SectionTitle>
+              <p className="text-[0.9rem] text-mist">The last shared note from the household.</p>
+            </div>
+          </div>
           {update ? (
             <div>
               {update.title ? <p className="font-bold">{update.title}</p> : null}

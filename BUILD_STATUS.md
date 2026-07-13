@@ -101,6 +101,15 @@ continued in Claude Code against the ADCARE repo using the master build prompt.
   observations row and a linked observation.created audit event; verification
   row removed afterward and db:check re-passed).
 
+## Done (session 5 — visual polish slice)
+- [x] Added an app-wide visual language inspired by the GLP-101 reference:
+      darker product shell, warmer gold/sage accents, richer surfaces, and
+      icon-led navigation/actions without adding new npm dependencies.
+- [x] Added local SVG icon components and reusable UI helpers for icon badges,
+      button links, stat pills, text links, and a care-map dashboard visual.
+- [x] Polished the demo login, dashboard, observations, medications,
+      appointments, documents, research, care recipient, and settings screens.
+
 ## Not started
 - Remaining write paths (edit/delete observations; tasks, meds, appointments)
 - Auth0 production auth, invitations flow, role-based UI differences

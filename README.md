@@ -6,8 +6,9 @@ safe, and follow dementia research translated into plain language with honest
 evidence labels.
 
 This repository currently contains the validated data foundation (Phase 1)
-and the first working web app slice (Phase 2 start). See BUILD_STATUS.md for
-the precise state of every feature.
+and the first working web app slice (Phase 2 start), with a polished
+fixture-friendly care workspace UI. See BUILD_STATUS.md for the precise
+state of every feature.
 
 ## Run it locally
 

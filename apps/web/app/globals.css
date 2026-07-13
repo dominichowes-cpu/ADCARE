@@ -2,14 +2,18 @@
 
 @theme {
   --color-ink: #1b2a41;
+  --color-ink-deep: #111b2c;
   --color-ink-soft: #2b3d57;
   --color-paper: #faf8f4;
+  --color-paper-warm: #f2eee7;
   --color-card: #fffdf9;
   --color-line: #e7e1d6;
   --color-teal: #3e7c7b;
   --color-teal-deep: #2f6160;
   --color-sage: #dce7e2;
   --color-sage-soft: #edf3f0;
+  --color-gold: #f0bf4f;
+  --color-gold-soft: #f8e1a5;
   --color-amber: #b98a3c;
   --color-clay: #a65a4e;
   --color-mist: #5c6b7a;
@@ -22,13 +26,43 @@ html {
 }
 
 body {
-  background: var(--color-paper);
+  background:
+    linear-gradient(135deg, rgba(62, 124, 123, 0.08) 0%, transparent 32%),
+    linear-gradient(180deg, var(--color-paper) 0%, var(--color-paper-warm) 52%, #eef4f1 100%);
   color: var(--color-ink);
   font-family: var(--font-body);
 }
 
 ::selection {
   background: var(--color-sage);
+}
+
+a,
+button {
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+::-webkit-scrollbar {
+  height: 0.5rem;
+  width: 0.5rem;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(43, 61, 87, 0.22);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(43, 61, 87, 0.34);
 }
 
 @media (prefers-reduced-motion: reduce) {
