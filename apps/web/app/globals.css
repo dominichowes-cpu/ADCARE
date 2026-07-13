@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Season Sans";
+  src: url("/fonts/VF/SeasonSansVFUprights.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 100 900;
+}
+
+@font-face {
+  font-family: "Season Sans";
+  src: url("/fonts/VF/SeasonSansVFItalics.ttf") format("truetype");
+  font-display: swap;
+  font-style: italic;
+  font-weight: 100 900;
+}
+
 @theme {
   --color-ink: #1b2a41;
   --color-ink-deep: #111b2c;
@@ -17,12 +33,12 @@
   --color-amber: #b98a3c;
   --color-clay: #a65a4e;
   --color-mist: #5c6b7a;
-  --font-display: "Fraunces Variable", Georgia, serif;
-  --font-body: "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-display: "Season Sans", "DM Sans", system-ui, sans-serif;
+  --font-body: "Season Sans", "DM Sans", system-ui, sans-serif;
 }
 
 html {
-  font-size: 17px;
+  font-size: 16px;
 }
 
 body {

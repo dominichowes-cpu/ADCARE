@@ -33,7 +33,7 @@ export function Shell({ session, children }: { session: Session; children: React
               <Icon name="heart" className="size-5" />
             </span>
             <span>
-              <span className="block font-display text-xl leading-none">Clarity Path</span>
+              <span className="block font-display text-xl font-semibold leading-none">Clarity Path</span>
               <span className="mt-1 block text-[0.72rem] uppercase tracking-[0.16em] text-paper/45">
                 Care workspace
               </span>

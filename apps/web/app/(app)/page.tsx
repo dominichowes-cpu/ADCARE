@@ -31,7 +31,7 @@ export default async function Dashboard() {
                 <span className="size-2 rounded-full bg-gold" />
                 Today&apos;s care picture
               </div>
-              <h1 className="max-w-2xl font-display text-[2.4rem] leading-none sm:text-[3rem]">
+              <h1 className="max-w-2xl font-display text-[2.4rem] font-semibold leading-none sm:text-[3rem]">
                 Welcome back, {first}
               </h1>
               <p className="mt-4 max-w-2xl text-paper/68">
@@ -68,7 +68,7 @@ export default async function Dashboard() {
           </div>
           {nextAppt ? (
             <div>
-              <p className="font-display text-xl">{nextAppt.clinicianName ?? "Appointment"}</p>
+              <p className="font-display text-xl font-semibold">{nextAppt.clinicianName ?? "Appointment"}</p>
               <p className="text-mist">
                 {nextAppt.specialty} · {nextAppt.location}
               </p>

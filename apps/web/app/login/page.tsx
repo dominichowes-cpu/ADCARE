@@ -15,7 +15,7 @@ export default async function LoginPage() {
           <div className="mb-5 flex items-center gap-3">
             <IconBadge icon="heart" tone="teal" size="lg" />
             <div>
-              <h1 className="font-display text-4xl leading-none">Clarity Path</h1>
+              <h1 className="font-display text-4xl font-semibold leading-none">Clarity Path</h1>
               <p className="mt-1 text-[0.78rem] font-bold uppercase tracking-[0.16em] text-teal-deep">
                 Care workspace
               </p>
@@ -56,7 +56,7 @@ export default async function LoginPage() {
           <p className="mb-4 text-[0.78rem] font-bold uppercase tracking-[0.16em] text-gold-soft">
             Demo household
           </p>
-          <h2 className="font-display text-[3rem] leading-none">A shared view of the details that matter.</h2>
+          <h2 className="font-display text-[3rem] font-semibold leading-none">A shared view of the details that matter.</h2>
           <p className="mt-4 text-paper/65">
             Notes, appointments, medication context, documents, and research sit together so the
             family can spot patterns and show up prepared.

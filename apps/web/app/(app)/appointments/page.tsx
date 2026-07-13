@@ -24,7 +24,7 @@ export default async function AppointmentsPage() {
                 <IconBadge icon="calendar" tone="teal" />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <p className="font-display text-xl">
+                    <p className="font-display text-xl font-semibold">
                       {a.clinicianName ?? "Appointment"}
                       {a.specialty ? <span className="text-mist"> · {a.specialty}</span> : null}
                     </p>

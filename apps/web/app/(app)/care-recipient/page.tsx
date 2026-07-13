@@ -61,7 +61,7 @@ export default async function CareRecipientPage() {
             {stats.map((s) => (
               <li key={s.label} className="flex items-baseline justify-between rounded-lg border border-line/70 bg-paper/55 px-3 py-2">
                 <span className="text-mist">{s.label}</span>
-                <span className="font-display text-xl">{s.value}</span>
+                <span className="font-display text-xl font-semibold">{s.value}</span>
               </li>
             ))}
           </ul>

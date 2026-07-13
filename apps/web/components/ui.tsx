@@ -21,7 +21,7 @@ export function PageHeader({
           {eyebrow ? <span>{eyebrow}</span> : null}
         </div>
       ) : null}
-      <h1 className="font-display text-[2.2rem] leading-tight">{title}</h1>
+      <h1 className="font-display text-[2.2rem] font-semibold leading-tight">{title}</h1>
       {lede ? <p className="mt-2 max-w-2xl text-mist">{lede}</p> : null}
     </header>
   );
@@ -158,7 +158,7 @@ export function StatPill({ label, value }: { label: string; value: ReactNode }) 
   return (
     <div className="rounded-lg border border-paper/15 bg-paper/10 px-3 py-2 text-paper shadow-[0_12px_40px_rgba(0,0,0,0.08)] backdrop-blur">
       <p className="text-[0.72rem] uppercase tracking-[0.12em] text-paper/65">{label}</p>
-      <p className="mt-0.5 font-display text-xl leading-none">{value}</p>
+      <p className="mt-0.5 font-display text-xl font-semibold leading-none">{value}</p>
     </div>
   );
 }

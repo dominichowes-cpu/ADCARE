@@ -42,7 +42,7 @@ export default async function ResearchPage() {
                       <Chip tone="clay">Not yet studied in people</Chip>
                     ) : null}
                   </div>
-                  <p className="mt-2 font-display text-lg leading-snug">{c.displayHeadline}</p>
+                  <p className="mt-2 font-display text-lg font-semibold leading-snug">{c.displayHeadline}</p>
                   {c.plainSubheading ? <p className="mt-1 text-mist">{c.plainSubheading}</p> : null}
                   <p className="mt-2 text-[0.85rem] text-mist">
                     {actionabilityLabels[c.actionability] ?? c.actionability} · {fmtDate(c.primaryPublicationDate)}

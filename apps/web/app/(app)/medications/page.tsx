@@ -24,7 +24,7 @@ export default async function MedicationsPage() {
                   <IconBadge icon="pill" tone="sage" />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
-                      <p className="font-display text-lg">{m.name}</p>
+                      <p className="font-display text-lg font-semibold">{m.name}</p>
                       <Chip tone="neutral">{m.dosageText ?? "dose not recorded"}</Chip>
                     </div>
                     <p className="text-mist">
