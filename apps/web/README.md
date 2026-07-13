@@ -1,33 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ADCARE web app
 
-## Getting Started
+Next.js App Router frontend for the ADCARE/Clarity Path workspace.
 
-First, run the development server:
+## Run
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://127.0.0.1:3000](http://127.0.0.1:3000). The app shell uses
+fictional fixtures by default. User-entered observations are encrypted in this
+browser's IndexedDB private vault and are not submitted to a server action.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Privacy Boundary
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Local-first is the default:
 
-## Learn More
+- Observation writes happen in `components/local-observations.tsx` +
+  `lib/local-vault.ts`.
+- The vault uses Web Crypto PBKDF2 + AES-GCM and stores only ciphertext in
+  IndexedDB.
+- Postgres access is disabled unless `CLARITY_STORAGE_MODE=cloud` is set.
+- Do not introduce care-data API routes, server actions, analytics payloads, or
+  logs without a deliberate compliance review.
 
-To learn more about Next.js, take a look at the following resources:
+## Verify
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+From the repo root:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+pnpm typecheck
+pnpm --filter web lint
+pnpm build
+BASE=http://127.0.0.1:3000 pnpm smoke
+```
 
 ## Deploy on Vercel
 

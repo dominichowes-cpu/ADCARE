@@ -2,7 +2,6 @@ import { requireSession } from "@/lib/session";
 import { PageHeader } from "@/components/ui";
 import { observationCategoryLabels } from "@/lib/labels";
 import { observationCategories } from "@/lib/validation";
-import { usingFixtureData } from "@/lib/data";
 import { ObservationForm } from "./observation-form";
 
 function localDatetimeValue(d: Date): string {
@@ -28,8 +27,8 @@ export default async function NewObservationPage() {
       <ObservationForm
         categories={categories}
         defaultObservedAt={localDatetimeValue(new Date())}
+        observerName={session.user.displayName}
         recipientName={recipientName}
-        fixtureMode={usingFixtureData()}
       />
     </div>
   );

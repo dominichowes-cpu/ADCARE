@@ -1,6 +1,6 @@
 # BUILD_STATUS — Clarity Path
 
-Updated: 2026-07-11 (session 2)
+Updated: 2026-07-13 (Codex local-first privacy pass)
 
 ## Environment note
 This session runs in a Claude chat sandbox: filesystem resets between conversations,
@@ -67,21 +67,17 @@ continued in Claude Code against the ADCARE repo using the master build prompt.
 - [x] VERIFIED locally: pnpm install, pnpm typecheck, pnpm --filter web lint,
       pnpm build, and pnpm smoke against http://127.0.0.1:3000 in fixture mode.
 
-## Done (session 4 — first write-enabled care workflow)
+## Done (session 4 — first write-enabled care workflow, superseded by session 6 local-first storage)
 - [x] /observations/new: create-observation form (category, description,
       observed date/time via datetime-local, one-time vs recurring, optional
       functional impact, include-in-clinician-brief)
-- [x] Server-side validation (lib/validation.ts, dependency-free): enum-checked
+- [x] Original server-side validation (lib/validation.ts, dependency-free):
+      enum-checked
       category, 3–2000 char description, date sanity (no future beyond 5-min
       skew, none before 2000), 1000-char impact cap; per-field error messages
       returned via useActionState without losing calm tone
-- [x] Write path (lib/data.ts createObservation) behind the same fixture/DB
-      boundary as reads:
-      · DB mode: INSERT into observations (household-, recipient-, membership-
-        and creator-scoped from session) + linked audit_events row
-        (observation.created)
-      · Fixture mode: entry is added to in-memory fixture data (appears in the
-        list, resets on restart); form shows an explicit preview-mode notice
+- [x] Original server write path added, then removed in session 6 when
+      observations moved to the encrypted browser-local vault.
 - [x] Navigation: "New observation" button on /observations, "Record one" link
       on the dashboard's recent-observations card
 - [x] Smoke test extended with /observations/new
@@ -90,16 +86,9 @@ continued in Claude Code against the ADCARE repo using the master build prompt.
 - pnpm typecheck: clean (web + db). pnpm --filter web lint: clean.
   pnpm build: clean.
 - Fixture mode: full smoke suite green including the new route.
-- Codex import verification: browser-level fixture-mode form submission works
-  end-to-end; the submitted observation redirects back to /observations and
-  appears at the top of the timeline. Codex also fixed fixture writes to use a
-  shared in-process preview store so server actions and page renders see the
-  same temporary observations.
-- DB mode: full smoke suite green; write path exercised at function level
-  against live Postgres via the real validation + createObservation code
-  (invalid input rejected per-field; valid input produced a correctly scoped
-  observations row and a linked observation.created audit event; verification
-  row removed afterward and db:check re-passed).
+- Codex import verification at that time covered the then-current fixture and
+  DB server write path. That path is no longer active after the session 6
+  local-first privacy pass.
 
 ## Done (session 5 — visual polish slice)
 - [x] Added an app-wide visual language inspired by the GLP-101 reference:
@@ -112,6 +101,21 @@ continued in Claude Code against the ADCARE repo using the master build prompt.
 - [x] Applied a tighter GLP-101 screenshot reference pass: dark top frame with
       search/avatar treatment, gold notification accents, crisp yellow line-art
       dashboard visual, and illustration strips in the dashboard care cards.
+
+## Done (session 6 — local-first privacy pass)
+- [x] Made browser-local private storage the default launch posture for
+      user-entered observations.
+- [x] Removed the /observations/new server action and the old lib/data.ts
+      Postgres/fixture write path, so observation text no
+      longer flows through server actions, audit_events, or cloud DB writes.
+- [x] Added an encrypted IndexedDB vault using Web Crypto PBKDF2 + AES-GCM.
+      The derived key is held only in browser memory for the current session.
+- [x] Rewired /observations, dashboard recent observations, and care-recipient
+      observation counts to read from the local vault.
+- [x] Added Settings export/import controls for encrypted vault backups.
+- [x] Changed database-backed care-data reads to require explicit
+      CLARITY_STORAGE_MODE=cloud; DATABASE_URL alone keeps the app in fixture
+      shell + local-vault mode.
 
 ## Not started
 - Remaining write paths (edit/delete observations; tasks, meds, appointments)

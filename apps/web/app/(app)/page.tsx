@@ -11,12 +11,13 @@ import {
   StatPill,
   TextLink,
 } from "@/components/ui";
-import { fmtDate, fmtDateTime, observationCategoryLabels, titleize } from "@/lib/labels";
+import { LocalObservationStatPill, LocalRecentObservations } from "@/components/local-observations";
+import { fmtDate, fmtDateTime, titleize } from "@/lib/labels";
 import { getDashboardData } from "@/lib/data";
 
 export default async function Dashboard() {
   const session = await requireSession();
-  const { nextAppt, openTasks, recentObs, update } = await getDashboardData(session);
+  const { nextAppt, openTasks, update } = await getDashboardData(session);
 
   const first = session.user.displayName.split(" ")[0];
   const who = session.recipient?.preferredName ?? "your family";
@@ -49,7 +50,7 @@ export default async function Dashboard() {
             </div>
             <div className="grid gap-3 sm:grid-cols-3">
               <StatPill label="Open tasks" value={openTasks.length} />
-              <StatPill label="Recent notes" value={recentObs.length} />
+              <LocalObservationStatPill />
               <StatPill label="Next visit" value={nextAppt ? fmtDate(nextAppt.startsAt) : "None"} />
             </div>
           </div>
@@ -113,21 +114,7 @@ export default async function Dashboard() {
               Record one
             </TextLink>
           </div>
-          {recentObs.length ? (
-            <ul className="space-y-3">
-              {recentObs.map((o) => (
-                <li key={o.id} className="rounded-lg border border-line/70 bg-paper/45 p-3">
-                  <Chip tone={o.category === "positive_stable" ? "sage" : "neutral"}>
-                    {observationCategoryLabels[o.category] ?? o.category}
-                  </Chip>
-                  <p className="mt-1">{o.description}</p>
-                  <p className="text-[0.85rem] text-mist">{fmtDate(o.observedAt)}</p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <Empty>No observations recorded yet.</Empty>
-          )}
+          <LocalRecentObservations />
         </Card>
         <Card>
           <IllustrationStrip variant="family" />

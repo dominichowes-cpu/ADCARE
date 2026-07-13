@@ -1,4 +1,16 @@
-# SECURITY_AND_PRIVACY — Clarity Path (data layer status)
+# SECURITY_AND_PRIVACY — Clarity Path
+
+## Local-first launch posture
+The web app defaults to local-first private storage for user-entered care data.
+Observation writes no longer use a server action, API route, fixture mutation,
+or Postgres insert path. The browser validates the form, derives an AES-GCM key
+from the user's passphrase with PBKDF2, and stores only encrypted vault
+ciphertext in IndexedDB. The derived key is held in browser memory for the
+current session, and Settings supports encrypted export/import backup files.
+
+Postgres access is now explicit opt-in: `DATABASE_URL` by itself does not put
+care data in the database. Server-side data helpers use fictional fixtures
+unless `CLARITY_STORAGE_MODE=cloud` is also set.
 
 ## Current controls (implemented in schema)
 Tenant isolation is structural: every private table carries household_id with FK
@@ -13,16 +25,15 @@ administrative actions have a home in audit_events. Care data and research data
 never share a table, and the only paths between them are user-initiated
 (saved_content, appointment_questions).
 
-## Known gaps (before real identifiable health information)
+## Known gaps (before real identifiable health information or cloud sync)
 Authorization is currently a service-layer obligation, not database-enforced:
 Postgres row-level security policies keyed on household membership are the next
 hardening step. Application-level encryption for the most sensitive free-text
 columns (observations.description, extracted_document_text.extracted_text) is not
-yet implemented; when it is, document the key-management approach (KMS-backed
-envelope encryption is the default recommendation). No backup/restore procedure,
-no TLS termination, no rate limiting, no log-redaction layer, and no analytics
-allowlist exist yet — these belong to the application build. Virus scanning is a
-hook (documents.virus_scan_status), not an integration.
+yet implemented for cloud mode; when cloud storage returns, document the
+key-management approach. No TLS termination, no rate limiting, no log-redaction
+layer, and no analytics allowlist exist yet. Virus scanning is a hook
+(documents.virus_scan_status), not an integration.
 
 ## Compliance posture
 Nothing here makes the product HIPAA compliant, and the product must not claim to

@@ -1,4 +1,5 @@
-// Server-side validation for care-data writes. Deliberately dependency-free.
+// Shared validation for care-data writes. Deliberately dependency-free so the
+// browser can validate before storing anything in the local private vault.
 
 export const observationCategories = [
   "memory_repetition", "word_finding", "orientation", "planning_organization",

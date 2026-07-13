@@ -1,8 +1,15 @@
 "use client";
 
-import { useActionState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
-import { createObservationAction, type ObservationFormState } from "./actions";
+import { useRouter } from "next/navigation";
+import { getLocalVaultStatus, saveLocalObservation } from "@/lib/local-vault";
+import { validateObservationInput } from "@/lib/validation";
+
+type ObservationFormState = {
+  errors: Record<string, string>;
+  message: string | null;
+};
 
 const initialState: ObservationFormState = { errors: {}, message: null };
 
@@ -25,26 +32,93 @@ const inputClass =
   "w-full rounded-lg border border-line bg-card px-3 py-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-teal";
 
 export function ObservationForm({
-  categories, defaultObservedAt, recipientName, fixtureMode,
+  categories, defaultObservedAt, recipientName, observerName,
 }: {
   categories: CategoryOption[];
   defaultObservedAt: string;
   recipientName: string;
-  fixtureMode: boolean;
+  observerName: string;
 }) {
-  const [state, formAction, pending] = useActionState(createObservationAction, initialState);
+  const router = useRouter();
+  const [state, setState] = useState(initialState);
+  const [pending, setPending] = useState(false);
+  const [vaultState, setVaultState] = useState<"checking" | "unconfigured" | "locked" | "unlocked">("checking");
+
+  async function refreshVaultState() {
+    const status = await getLocalVaultStatus();
+    setVaultState(status.state);
+  }
+
+  useEffect(() => {
+    void refreshVaultState();
+  }, []);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setPending(true);
+    setState(initialState);
+
+    const formData = new FormData(event.currentTarget);
+    const validation = validateObservationInput(formData);
+    if (!validation.ok) {
+      setState({ errors: validation.errors, message: null });
+      setPending(false);
+      return;
+    }
+
+    const result = await saveLocalObservation(validation.value, {
+      observer: observerName,
+      passphrase: String(formData.get("vaultPassphrase") ?? ""),
+    });
+
+    if (!result.ok) {
+      setState({ errors: {}, message: result.message });
+      setPending(false);
+      return;
+    }
+
+    setPending(false);
+    router.push("/observations");
+  }
+
+  const needsPassphrase = vaultState === "unconfigured" || vaultState === "locked";
 
   return (
-    <form action={formAction} className="max-w-2xl space-y-6">
-      {fixtureMode ? (
-        <p className="rounded-lg border border-amber/40 bg-amber/10 px-4 py-3 text-[0.95rem]">
-          Preview mode: this entry will appear in the list but is kept in memory
-          only and disappears when the server restarts. Nothing is saved.
-        </p>
-      ) : null}
+    <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
+      <p className="rounded-lg border border-teal/25 bg-sage-soft px-4 py-3 text-[0.95rem]">
+        Local-first mode: this observation is encrypted in this browser&apos;s private vault.
+        It is not sent to ADCARE servers or Postgres.
+      </p>
       {state.message ? (
         <p className="rounded-lg border border-clay/40 bg-clay/10 px-4 py-3">{state.message}</p>
       ) : null}
+
+      {vaultState === "checking" ? (
+        <p className="rounded-lg border border-line bg-card/75 px-4 py-3 text-[0.95rem] text-mist">
+          Checking this browser&apos;s private vault...
+        </p>
+      ) : needsPassphrase ? (
+        <Field
+          label={vaultState === "unconfigured" ? "Create a private vault passphrase" : "Unlock private vault"}
+          hint={
+            vaultState === "unconfigured"
+              ? "This passphrase protects data stored in this browser. ADCARE cannot recover it."
+              : "Enter the passphrase for this browser's encrypted vault before saving."
+          }
+        >
+          <input
+            autoComplete="current-password"
+            className={inputClass}
+            minLength={8}
+            name="vaultPassphrase"
+            type="password"
+          />
+        </Field>
+      ) : (
+        <p className="rounded-lg border border-line bg-card/75 px-4 py-3 text-[0.95rem] text-mist">
+          Private vault unlocked for this browser session.
+        </p>
+      )}
 
       <Field label="What area does this belong to?" error={state.errors.category}>
         <select name="category" className={inputClass} defaultValue="">

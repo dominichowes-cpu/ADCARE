@@ -1,5 +1,6 @@
 import { requireSession } from "@/lib/session";
 import { Card, Empty, IconBadge, PageHeader, SectionTitle } from "@/components/ui";
+import { LocalObservationInlineCount } from "@/components/local-observations";
 import { getCareRecipientStats } from "@/lib/data";
 
 export default async function CareRecipientPage() {
@@ -18,7 +19,7 @@ export default async function CareRecipientPage() {
   const counts = await getCareRecipientStats(session);
 
   const stats = [
-    { label: "Observations recorded", value: counts.observations },
+    { label: "Private observations", value: <LocalObservationInlineCount /> },
     { label: "Active medications", value: counts.medications },
     { label: "Documents in the vault", value: counts.documents },
     { label: "Upcoming appointments", value: counts.appointments },

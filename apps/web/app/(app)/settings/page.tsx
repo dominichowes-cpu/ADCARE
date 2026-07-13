@@ -1,5 +1,6 @@
 import { requireSession } from "@/lib/session";
 import { Card, Chip, IconBadge, PageHeader, SectionTitle } from "@/components/ui";
+import { LocalVaultControls } from "@/components/local-observations";
 import { titleize } from "@/lib/labels";
 import { getSettingsData } from "@/lib/data";
 
@@ -68,6 +69,9 @@ export default async function SettingsPage() {
           <p className="mt-4 text-[0.85rem] text-mist">
             Editing these settings arrives with the settings write layer in a later slice.
           </p>
+        </Card>
+        <Card className="md:col-span-2">
+          <LocalVaultControls />
         </Card>
       </div>
     </div>
