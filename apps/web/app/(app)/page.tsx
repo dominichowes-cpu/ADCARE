@@ -6,6 +6,7 @@ import {
   Chip,
   Empty,
   IconBadge,
+  IllustrationStrip,
   SectionTitle,
   StatPill,
   TextLink,
@@ -57,6 +58,7 @@ export default async function Dashboard() {
       </section>
       <div className="grid gap-5 md:grid-cols-2">
         <Card tint>
+          <IllustrationStrip variant="visit" />
           <div className="mb-4 flex items-start gap-3">
             <IconBadge icon="calendar" tone="teal" />
             <div>
@@ -80,6 +82,7 @@ export default async function Dashboard() {
           )}
         </Card>
         <Card>
+          <IllustrationStrip variant="tasks" />
           <div className="mb-4 flex items-start gap-3">
             <IconBadge icon="clipboard" tone="gold" />
             <div>
@@ -103,6 +106,7 @@ export default async function Dashboard() {
           )}
         </Card>
         <Card>
+          <IllustrationStrip variant="observations" />
           <div className="flex items-baseline justify-between">
             <SectionTitle icon="activity">Recent observations</SectionTitle>
             <TextLink href="/observations/new" icon="plus">
@@ -126,6 +130,7 @@ export default async function Dashboard() {
           )}
         </Card>
         <Card>
+          <IllustrationStrip variant="family" />
           <div className="mb-4 flex items-start gap-3">
             <IconBadge icon="heart" tone="clay" />
             <div>

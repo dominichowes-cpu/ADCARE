@@ -17,6 +17,13 @@ const nav: { href: string; label: string; icon: IconName }[] = [
 ];
 
 export function Shell({ session, children }: { session: Session; children: ReactNode }) {
+  const initials = session.user.displayName
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[17rem_1fr]">
       <aside className="border-paper/10 bg-ink-deep text-paper lg:sticky lg:top-0 lg:h-screen lg:border-r">
@@ -56,19 +63,31 @@ export function Shell({ session, children }: { session: Session; children: React
         </nav>
       </aside>
       <div className="min-w-0">
-        <header className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 border-b border-line bg-card/85 px-6 py-4 shadow-[0_10px_30px_rgba(27,42,65,0.05)] backdrop-blur">
-          <span className="inline-flex items-center gap-2 rounded-full border border-teal/15 bg-sage px-3 py-1 text-[0.85rem] font-bold text-teal-deep">
+        <header className="sticky top-0 z-10 grid gap-3 border-b border-paper/10 bg-ink-deep px-5 py-3 text-paper shadow-[0_10px_30px_rgba(17,27,44,0.18)] sm:px-6 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
+          <span className="inline-flex w-fit items-center gap-2 rounded-full border border-gold/25 bg-paper/10 px-3 py-1 text-[0.85rem] font-bold text-gold-soft">
             <Icon name="shield" className="size-3.5" />
             {phaseLabels[session.household.navigationPhase] ?? session.household.navigationPhase}
           </span>
-          <div className="flex items-center gap-4 text-[0.9rem]">
-            <span className="text-mist">
-              {session.user.displayName}
-              {session.membership.relationship ? ` · ${session.membership.relationship}` : ""}
+          <div className="hidden h-9 min-w-[18rem] items-center justify-between rounded-full border border-paper/10 bg-black/30 px-3 text-[0.85rem] text-paper/62 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] lg:flex">
+            <span className="inline-flex items-center gap-2">
+              <Icon name="sparkles" className="size-3.5 text-gold" />
+              Search care record
+            </span>
+            <Icon name="search" className="size-4 text-paper/45" />
+          </div>
+          <div className="flex items-center justify-between gap-3 text-[0.9rem] lg:justify-end">
+            <span className="inline-flex size-9 items-center justify-center rounded-full text-gold">
+              <Icon name="bell" className="size-5" />
+            </span>
+            <span className="hidden text-paper/72 sm:inline">
+              Hi, {session.user.displayName.split(" ")[0]}
+            </span>
+            <span className="inline-flex size-8 items-center justify-center rounded-full bg-gold text-[0.72rem] font-bold text-ink-deep">
+              {initials}
             </span>
             <form action={logout}>
               <button
-                className="inline-flex items-center gap-2 rounded-lg border border-line bg-card px-3 py-1.5 font-bold hover:border-teal/40 hover:bg-paper focus-visible:outline focus-visible:outline-2 focus-visible:outline-teal"
+                className="inline-flex items-center gap-2 rounded-lg border border-paper/10 bg-paper/10 px-3 py-1.5 font-bold text-paper hover:bg-paper/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
                 type="submit"
               >
                 <Icon name="logOut" className="size-4" />

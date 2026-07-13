@@ -109,6 +109,9 @@ continued in Claude Code against the ADCARE repo using the master build prompt.
       button links, stat pills, text links, and a care-map dashboard visual.
 - [x] Polished the demo login, dashboard, observations, medications,
       appointments, documents, research, care recipient, and settings screens.
+- [x] Applied a tighter GLP-101 screenshot reference pass: dark top frame with
+      search/avatar treatment, gold notification accents, crisp yellow line-art
+      dashboard visual, and illustration strips in the dashboard care cards.
 
 ## Not started
 - Remaining write paths (edit/delete observations; tasks, meds, appointments)
