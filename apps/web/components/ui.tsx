@@ -176,39 +176,19 @@ export function IllustrationStrip({
   };
 
   return (
-    <div className="-mx-5 -mt-5 mb-4 overflow-hidden rounded-t-lg border-b border-line bg-gold-soft/70">
-      <div className="relative h-28">
+    <div className="-mx-5 -mt-5 mb-4 overflow-hidden rounded-t-lg border-b border-line bg-gold-soft/65">
+      <div className="relative h-20">
         <svg aria-hidden="true" className="absolute inset-0 h-full w-full" fill="none" viewBox="0 0 420 140">
-          <path d="M18 38h72M38 58h96M298 24h70M314 44h48" stroke="#1b2a41" strokeOpacity=".18" />
-          <path d="M24 116c54-44 104-46 150-6s104 35 166-20" stroke="#1b2a41" strokeDasharray="5 8" strokeOpacity=".25" />
-          <rect height="40" rx="5" stroke="#1b2a41" strokeOpacity=".5" width="54" x="252" y="56" />
-          <path d="M262 70h34M262 82h24" stroke="#1b2a41" strokeOpacity=".55" />
-          <path d="M102 85c12-19 35-17 44 0M124 78V42M112 54l12-12 12 12" stroke="#1b2a41" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-          <circle cx="124" cy="35" r="10" stroke="#1b2a41" strokeWidth="2" />
-          <circle cx="338" cy="83" fill="#fffdf9" r="22" stroke="#1b2a41" strokeOpacity=".55" />
-          <path d="M328 84h20M338 74v20" stroke="#1b2a41" strokeLinecap="round" />
-          <path d="m64 32 6 6 10-13M354 28l8-8M362 28l-8-8" stroke="#1b2a41" strokeLinecap="round" strokeLinejoin="round" strokeOpacity=".55" />
-          {variant === "observations" ? (
-            <path d="M184 88h28l15-44 27 70 15-35h31" stroke="#3e7c7b" strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" />
-          ) : null}
-          {variant === "visit" ? (
-            <g stroke="#3e7c7b" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3">
-              <rect height="58" rx="7" width="72" x="172" y="44" />
-              <path d="M172 62h72M190 35v18M226 35v18M190 78h12M214 78h12M190 92h12" />
-            </g>
-          ) : null}
-          {variant === "tasks" ? (
-            <g stroke="#3e7c7b" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3">
-              <rect height="66" rx="7" width="62" x="178" y="38" />
-              <path d="M192 58h31M192 74h31M192 90h20M182 58l4 4 8-10M182 90l4 4 8-10" />
-            </g>
-          ) : null}
-          {variant === "family" ? (
-            <path d="M210 102s-43-25-43-52c0-15 12-25 27-25 9 0 16 4 21 11 5-7 12-11 21-11 15 0 27 10 27 25 0 27-43 52-43 52h-10Z" fill="#fffdf9" stroke="#3e7c7b" strokeLinejoin="round" strokeWidth="3" />
-          ) : null}
+          <path d="M36 44h94M54 66h52M288 42h82M314 64h42" stroke="#1b2a41" strokeOpacity=".18" />
+          <path d="M42 118c44-26 90-29 138-9 59 24 112 16 158-24" stroke="#1b2a41" strokeDasharray="5 9" strokeLinecap="round" strokeOpacity=".2" />
+          <circle cx="116" cy="92" r="7" fill="#1b2a41" fillOpacity=".12" />
+          <circle cx="304" cy="92" r="7" fill="#1b2a41" fillOpacity=".12" />
+          <rect height="70" rx="16" stroke="#1b2a41" strokeOpacity=".16" width="140" x="140" y="35" />
         </svg>
-        <div className="absolute right-4 top-4 inline-flex size-10 items-center justify-center rounded-full border border-ink/15 bg-card text-ink">
-          <Icon name={icons[variant]} className="size-5" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="inline-flex size-14 items-center justify-center rounded-full border border-ink/15 bg-card text-teal-deep shadow-[0_10px_28px_rgba(27,42,65,0.08)]">
+            <Icon name={icons[variant]} className="size-6" />
+          </span>
         </div>
       </div>
     </div>
@@ -222,24 +202,27 @@ export function CareMapVisual() {
       className="relative mx-auto aspect-[4/3] w-full max-w-[23rem] overflow-hidden rounded-lg bg-gold text-ink-deep shadow-[0_24px_70px_rgba(0,0,0,0.2)]"
     >
       <svg className="absolute inset-0 h-full w-full" fill="none" viewBox="0 0 360 270">
-        <path d="M31 36h58M47 54h78M238 38h82M256 56h46" stroke="#111b2c" strokeOpacity=".24" />
-        <path d="M44 229c42-34 83-37 124-9 48 33 97 22 148-31" stroke="#111b2c" strokeDasharray="5 8" strokeLinecap="round" strokeOpacity=".3" />
-        <path d="M179 205s-52-31-52-65c0-19 15-32 34-32 11 0 20 5 26 14 6-9 15-14 26-14 19 0 34 13 34 32 0 34-52 65-52 65h-16Z" fill="#fffdf9" stroke="#111b2c" strokeLinejoin="round" strokeWidth="3" />
-        <circle cx="188" cy="75" r="25" fill="#fffdf9" stroke="#111b2c" strokeWidth="3" />
-        <path d="M188 101v49M164 127h48M171 174l17-24 18 24" stroke="#111b2c" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" />
-        <rect height="58" rx="7" stroke="#111b2c" strokeWidth="3" width="78" x="58" y="102" />
-        <path d="M70 121h54M70 137h38M70 151h28" stroke="#111b2c" strokeLinecap="round" strokeOpacity=".72" strokeWidth="2" />
-        <rect height="54" rx="7" stroke="#111b2c" strokeWidth="3" width="58" x="244" y="108" />
-        <path d="M256 124h34M256 139h24M256 154h30" stroke="#111b2c" strokeLinecap="round" strokeOpacity=".72" strokeWidth="2" />
-        <path d="M84 93V75h36v18M258 96V78h30v18" stroke="#111b2c" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-        <path d="m65 71 8 8 16-21M284 205l14-14M298 205l-14-14" stroke="#111b2c" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" />
-        <circle cx="75" cy="196" r="15" stroke="#111b2c" strokeWidth="3" />
-        <path d="M64 196h22M75 185v22M284 71h20M294 61v20" stroke="#111b2c" strokeLinecap="round" strokeWidth="3" />
+        <path d="M42 52h82M58 72h52M238 50h76M260 70h38" stroke="#111b2c" strokeOpacity=".18" />
+        <path d="M180 92v-34M180 178v34M126 135H78M234 135h48" stroke="#111b2c" strokeLinecap="round" strokeOpacity=".24" strokeWidth="3" />
+        <circle cx="180" cy="135" r="48" fill="#fffdf9" stroke="#111b2c" strokeWidth="3" />
+        <circle cx="180" cy="135" r="68" stroke="#111b2c" strokeDasharray="6 10" strokeOpacity=".18" strokeWidth="2" />
       </svg>
-      <div className="absolute bottom-4 left-4 right-4 grid grid-cols-4 gap-2">
-        {(["calendar", "activity", "pill", "shield"] as IconName[]).map((name) => (
-          <span key={name} className="inline-flex aspect-square items-center justify-center rounded-full bg-ink-deep text-gold">
-            <Icon name={name} className="size-4" />
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="inline-flex size-16 items-center justify-center rounded-full bg-ink-deep text-gold shadow-[0_18px_40px_rgba(17,27,44,0.18)]">
+          <Icon name="heart" className="size-7" />
+        </span>
+      </div>
+      <div className="absolute inset-x-7 top-7 flex justify-between">
+        {(["calendar", "activity"] as IconName[]).map((name) => (
+          <span key={name} className="inline-flex size-12 items-center justify-center rounded-full border border-ink/10 bg-card text-ink-deep shadow-[0_10px_24px_rgba(27,42,65,0.08)]">
+            <Icon name={name} className="size-5" />
+          </span>
+        ))}
+      </div>
+      <div className="absolute inset-x-7 bottom-7 flex justify-between">
+        {(["pill", "shield"] as IconName[]).map((name) => (
+          <span key={name} className="inline-flex size-12 items-center justify-center rounded-full border border-ink/10 bg-card text-ink-deep shadow-[0_10px_24px_rgba(27,42,65,0.08)]">
+            <Icon name={name} className="size-5" />
           </span>
         ))}
       </div>
