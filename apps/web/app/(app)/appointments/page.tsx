@@ -1,11 +1,13 @@
 import { requireSession } from "@/lib/session";
 import { Card, Chip, Empty, IconBadge, PageHeader, SectionTitle } from "@/components/ui";
 import { fmtDateTime } from "@/lib/labels";
-import { getAppointmentsData } from "@/lib/data";
+import { getAppointmentsData, usingFixtureData } from "@/lib/data";
+import { AppointmentPrep } from "@/components/appointment-prep";
 
 export default async function AppointmentsPage() {
   const session = await requireSession();
-  const { upcoming, past, questionsByAppointment } = await getAppointmentsData(session);
+  const { upcoming, past } = await getAppointmentsData(session);
+  const fixtureMode = usingFixtureData();
 
   return (
     <div>
@@ -28,24 +30,16 @@ export default async function AppointmentsPage() {
                       {a.clinicianName ?? "Appointment"}
                       {a.specialty ? <span className="text-mist"> · {a.specialty}</span> : null}
                     </p>
-                    <p className="font-bold">{fmtDateTime(a.startsAt)}</p>
+                    <span className="flex items-center gap-2">
+                      {fixtureMode ? <Chip>Demo appointment</Chip> : null}
+                      <p className="font-bold">{fmtDateTime(a.startsAt)}</p>
+                    </span>
                   </div>
                   <p className="text-mist">
                     {a.location}
                     {a.purpose ? ` — ${a.purpose}` : ""}
                   </p>
-                  {questionsByAppointment.get(a.id)?.length ? (
-                    <div className="mt-3 border-l-2 border-teal/30 pl-3">
-                      <p className="text-[0.85rem] font-bold uppercase tracking-wide text-mist">
-                        Questions to ask
-                      </p>
-                      <ol className="mt-1 list-decimal space-y-1 pl-5">
-                        {questionsByAppointment.get(a.id)!.map((q) => (
-                          <li key={q.id}>{q.question}</li>
-                        ))}
-                      </ol>
-                    </div>
-                  ) : null}
+                  <AppointmentPrep appointmentId={a.id} />
                 </div>
               </div>
             </Card>

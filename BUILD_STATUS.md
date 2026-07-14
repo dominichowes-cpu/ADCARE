@@ -1,6 +1,6 @@
 # BUILD_STATUS — Clarity Path
 
-Updated: 2026-07-14 (Codex session 7 integration verification)
+Updated: 2026-07-14 (Codex session 8 integration verification)
 
 ## Environment note
 This session runs in a Claude chat sandbox: filesystem resets between conversations,
@@ -164,9 +164,59 @@ continued in Claude Code against the ADCARE repo using the master build prompt.
   underlying export/reset/import/restore path passed Claude's 25-check vault
   module exercise above.
 
+## Done (session 8 — local-first care-management slice: tasks, meds, visit prep)
+- [x] /tasks: encrypted local task management — create (bootstraps the vault if
+      new), edit, complete/reopen, delete w/ accessible confirmation; title,
+      optional details, due date, priority, optional assignee; Open and
+      Completed sections; locked-vault and empty states; Tasks in main nav.
+- [x] Appointment preparation on each upcoming appointment card, encrypted
+      locally: questions to ask (add/edit/mark addressed/reopen/delete),
+      items to bring (add/check off/remove), private preparation notes —
+      all labeled "Local only". Fixture appointment cards now carry an
+      explicit "Demo appointment" chip; the old fictional questions block was
+      removed in favor of the real local feature. No PDFs/sharing/briefs.
+- [x] Medications page replaced with an encrypted local medication list:
+      name, free-text strength and instructions, optional purpose/prescriber/
+      pharmacy/notes, active|paused|stopped status, createdAt/updatedAt;
+      create/edit/mark active/mark paused/mark stopped/delete w/ confirmation; Active and
+      Paused-or-stopped sections. Record-keeping only by design: no dosage
+      advice, interpretation, interaction checks, adherence, "mark as taken",
+      reminders, or alerts anywhere; copy directs changes to the care team.
+- [x] Dashboard: open-task count, active-medication count, and the open-task
+      list now come from the local vault; fixture next-appointment retains
+      demo framing.
+- [x] Vault extended with typed tasks / medications / appointmentPrep
+      collections through the existing mutateVault path; envelope format,
+      PBKDF2 iteration metadata, and version-1 compatibility unchanged;
+      vaults saved before this session open with the new collections
+      defaulting to empty; unknown fields still preserved end to end;
+      shared create-bootstrap extracted (any collection's first save can
+      create the vault). New shared UI helpers (local-shared.tsx).
+- [x] No server-side care-data writes, no new dependencies, cloud mode still
+      gated on CLARITY_STORAGE_MODE=cloud.
+
+## Verified (session 8)
+- pnpm typecheck clean; pnpm --filter web lint clean; pnpm build clean.
+- Fixture-mode smoke suite green incl. new /tasks route; /medications and
+  /tasks needles corrected to server-rendered text (client-only strings had
+  made one check falsely pass and one falsely fail).
+- Vault harness (Node, real WebCrypto, in-memory IndexedDB stub, throwaway):
+  26/26 — task create bootstrapping a fresh vault; task edit/complete/
+  reopen/delete; medication create/edit/pause/resume/stop/delete; prep
+  question add/edit/address/reopen, items, notes; missing-id handling; and
+  a full export → reset → import → unlock round trip restoring all four
+  collections with field-level fidelity.
+- Codex integration verification tightened task priority sorting, calendar-date
+  validation, repeated-form IDs, fixture-only demo labels, medication status
+  wording, the four-stat dashboard layout, and first-use appointment prep.
+- Codex real-browser verification on 2026-07-14 covered task create/complete,
+  medication create/status change, appointment question/addressed state,
+  bring-along item and private notes, refresh/lock/unlock, and full vault reset.
+  The 390px task view had no horizontal overflow, and server logs showed no
+  care-data POST or server action. Disposable QA vault data was removed.
+
 ## Not started
-- Remaining write paths (tasks, meds, appointments — will follow the local
-  vault pattern established here)
+- Clinician briefs/PDF export of prep + observations; document uploads
 - Auth0 production auth, invitations flow, role-based UI differences
 - Admin app, source connectors, workers/queues, AI pipeline, notifications,
   clinician briefs/PDF, document upload/storage, Playwright tests, CI

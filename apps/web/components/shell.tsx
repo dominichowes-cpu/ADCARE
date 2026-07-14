@@ -9,6 +9,7 @@ const nav: { href: string; label: string; icon: IconName }[] = [
   { href: "/", label: "Home", icon: "home" },
   { href: "/care-recipient", label: "Care recipient", icon: "heart" },
   { href: "/observations", label: "Observations", icon: "activity" },
+  { href: "/tasks", label: "Tasks", icon: "clipboard" },
   { href: "/medications", label: "Medications", icon: "pill" },
   { href: "/appointments", label: "Appointments", icon: "calendar" },
   { href: "/documents", label: "Documents", icon: "file" },

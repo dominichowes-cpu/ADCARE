@@ -17,7 +17,15 @@
 // decrypt/edit/encrypt.
 
 import { observationCategories } from "@/lib/validation";
-import type { ObservationCategory, ObservationInput } from "@/lib/validation";
+import { medicationStatuses, taskPriorities } from "@/lib/validation";
+import type {
+  MedicationRecordInput,
+  MedicationStatus,
+  ObservationCategory,
+  ObservationInput,
+  TaskInput,
+  TaskPriority,
+} from "@/lib/validation";
 
 const DB_NAME = "adcare-private-vault";
 const STORE_NAME = "vault";
@@ -42,11 +50,65 @@ export type LocalObservation = {
   localOnly: true;
 } & Record<string, unknown>;
 
+export type LocalTask = {
+  id: string;
+  title: string;
+  details: string | null;
+  dueOn: string | null;
+  priority: TaskPriority;
+  assignee: string | null;
+  status: "open" | "completed";
+  completedAt: string | null;
+  createdAt: string;
+  updatedAt: string | null;
+  localOnly: true;
+} & Record<string, unknown>;
+
+export type LocalMedicationRecord = {
+  id: string;
+  name: string;
+  strength: string | null;
+  instructions: string | null;
+  purpose: string | null;
+  prescriber: string | null;
+  pharmacy: string | null;
+  status: MedicationStatus;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string | null;
+  localOnly: true;
+} & Record<string, unknown>;
+
+export type LocalPrepQuestion = {
+  id: string;
+  text: string;
+  status: "open" | "addressed";
+} & Record<string, unknown>;
+
+export type LocalPrepItem = {
+  id: string;
+  text: string;
+  packed: boolean;
+} & Record<string, unknown>;
+
+export type LocalAppointmentPrep = {
+  id: string;
+  appointmentId: string;
+  questions: LocalPrepQuestion[];
+  notes: string | null;
+  items: LocalPrepItem[];
+  createdAt: string;
+  updatedAt: string | null;
+  localOnly: true;
+} & Record<string, unknown>;
+
 // Known collections are typed; everything else rides along untouched.
 type VaultContents = {
   version: 1;
   observations: LocalObservation[];
-  medications: unknown[];
+  medications: LocalMedicationRecord[];
+  tasks: LocalTask[];
+  appointmentPrep: LocalAppointmentPrep[];
   appointments: unknown[];
   documents: unknown[];
   updatedAt: string;
@@ -165,6 +227,107 @@ function normalizeObservation(value: unknown): LocalObservation | null {
   };
 }
 
+function isTaskPriority(value: unknown): value is TaskPriority {
+  return typeof value === "string" && (taskPriorities as readonly string[]).includes(value);
+}
+
+function normalizeTask(value: unknown): LocalTask | null {
+  if (!value || typeof value !== "object") return null;
+  const raw = value as Record<string, unknown>;
+  const title = typeof raw.title === "string" ? raw.title : "";
+  if (!title) return null;
+
+  return {
+    ...raw,
+    id: typeof raw.id === "string" && raw.id ? raw.id : newId(),
+    title,
+    details: typeof raw.details === "string" && raw.details ? raw.details : null,
+    dueOn: typeof raw.dueOn === "string" && raw.dueOn ? raw.dueOn : null,
+    priority: isTaskPriority(raw.priority) ? raw.priority : "medium",
+    assignee: typeof raw.assignee === "string" && raw.assignee ? raw.assignee : null,
+    status: raw.status === "completed" ? "completed" : "open",
+    completedAt: typeof raw.completedAt === "string" ? raw.completedAt : null,
+    createdAt: typeof raw.createdAt === "string" ? raw.createdAt : new Date().toISOString(),
+    updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : null,
+    localOnly: true,
+  };
+}
+
+function isMedicationStatus(value: unknown): value is MedicationStatus {
+  return typeof value === "string" && (medicationStatuses as readonly string[]).includes(value);
+}
+
+function normalizeMedication(value: unknown): LocalMedicationRecord | null {
+  if (!value || typeof value !== "object") return null;
+  const raw = value as Record<string, unknown>;
+  const name = typeof raw.name === "string" ? raw.name : "";
+  if (!name) return null;
+
+  const text = (key: string) => (typeof raw[key] === "string" && raw[key] ? (raw[key] as string) : null);
+  return {
+    ...raw,
+    id: typeof raw.id === "string" && raw.id ? raw.id : newId(),
+    name,
+    strength: text("strength"),
+    instructions: text("instructions"),
+    purpose: text("purpose"),
+    prescriber: text("prescriber"),
+    pharmacy: text("pharmacy"),
+    status: isMedicationStatus(raw.status) ? raw.status : "active",
+    notes: text("notes"),
+    createdAt: typeof raw.createdAt === "string" ? raw.createdAt : new Date().toISOString(),
+    updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : null,
+    localOnly: true,
+  };
+}
+
+function normalizePrep(value: unknown): LocalAppointmentPrep | null {
+  if (!value || typeof value !== "object") return null;
+  const raw = value as Record<string, unknown>;
+  const appointmentId = typeof raw.appointmentId === "string" ? raw.appointmentId : "";
+  if (!appointmentId) return null;
+
+  const questions = Array.isArray(raw.questions)
+    ? raw.questions.flatMap((q): LocalPrepQuestion[] => {
+        if (!q || typeof q !== "object") return [];
+        const rq = q as Record<string, unknown>;
+        if (typeof rq.text !== "string" || !rq.text) return [];
+        return [{
+          ...rq,
+          id: typeof rq.id === "string" && rq.id ? rq.id : newId(),
+          text: rq.text,
+          status: rq.status === "addressed" ? "addressed" : "open",
+        }];
+      })
+    : [];
+
+  const items = Array.isArray(raw.items)
+    ? raw.items.flatMap((i): LocalPrepItem[] => {
+        if (!i || typeof i !== "object") return [];
+        const ri = i as Record<string, unknown>;
+        if (typeof ri.text !== "string" || !ri.text) return [];
+        return [{
+          ...ri,
+          id: typeof ri.id === "string" && ri.id ? ri.id : newId(),
+          text: ri.text,
+          packed: ri.packed === true,
+        }];
+      })
+    : [];
+
+  return {
+    ...raw,
+    id: typeof raw.id === "string" && raw.id ? raw.id : newId(),
+    appointmentId,
+    questions,
+    notes: typeof raw.notes === "string" && raw.notes ? raw.notes : null,
+    items,
+    createdAt: typeof raw.createdAt === "string" ? raw.createdAt : new Date().toISOString(),
+    updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : null,
+    localOnly: true,
+  };
+}
+
 function normalizeContents(value: unknown): VaultContents {
   const raw = value && typeof value === "object" ? (value as Record<string, unknown>) : {};
   const observations = Array.isArray(raw.observations)
@@ -175,7 +338,15 @@ function normalizeContents(value: unknown): VaultContents {
     ...raw, // preserve unknown top-level fields (future collections, metadata)
     version: 1,
     observations: sortObservations(observations),
-    medications: Array.isArray(raw.medications) ? raw.medications : [],
+    medications: Array.isArray(raw.medications)
+      ? raw.medications.map(normalizeMedication).filter((m): m is LocalMedicationRecord => m !== null)
+      : [],
+    tasks: Array.isArray(raw.tasks)
+      ? raw.tasks.map(normalizeTask).filter((t): t is LocalTask => t !== null)
+      : [],
+    appointmentPrep: Array.isArray(raw.appointmentPrep)
+      ? raw.appointmentPrep.map(normalizePrep).filter((a): a is LocalAppointmentPrep => a !== null)
+      : [],
     appointments: Array.isArray(raw.appointments) ? raw.appointments : [],
     documents: Array.isArray(raw.documents) ? raw.documents : [],
     updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : new Date().toISOString(),
@@ -187,6 +358,8 @@ function emptyVault(): VaultContents {
     version: 1,
     observations: [],
     medications: [],
+    tasks: [],
+    appointmentPrep: [],
     appointments: [],
     documents: [],
     updatedAt: new Date().toISOString(),
@@ -375,7 +548,7 @@ export async function unlockLocalVault(passphrase: string): Promise<VaultResult>
   if (!passphrase.trim()) return { ok: false, message: "Enter your local vault passphrase." };
 
   const envelope = await readEnvelope();
-  if (!envelope) return { ok: false, message: "Create a local vault by saving your first observation." };
+  if (!envelope) return { ok: false, message: "Create a local vault by saving your first private care item." };
 
   try {
     const key = await deriveVaultKey(passphrase, base64ToBytes(envelope.salt), envelope.iterations);
@@ -434,30 +607,40 @@ export async function readLocalObservation(id: string): Promise<LocalObservation
 // Observation writes (create keeps its passphrase-bootstrap behavior)
 // ---------------------------------------------------------------------------
 
-export async function saveLocalObservation(
-  input: ObservationInput,
-  options: { observer: string; passphrase?: string },
-): Promise<{ ok: true; id: string } | { ok: false; message: string }> {
+// First save can create the vault; a locked vault can be unlocked inline.
+// Shared by every collection's create path.
+async function ensureVaultForWrite(passphrase?: string): Promise<VaultResult> {
   const existingEnvelope = await readEnvelope();
 
-  // First save can create the vault; a locked vault can be unlocked inline.
   if (!existingEnvelope) {
-    const passphrase = options.passphrase?.trim() ?? "";
-    if (passphrase.length < MIN_PASSPHRASE) {
+    const trimmed = passphrase?.trim() ?? "";
+    if (trimmed.length < MIN_PASSPHRASE) {
       return { ok: false, message: `Create a local vault passphrase with at least ${MIN_PASSPHRASE} characters.` };
     }
     const saltBytes = window.crypto.getRandomValues(new Uint8Array(16));
     const salt = bytesToBase64(saltBytes);
-    activeKey = await deriveVaultKey(passphrase, saltBytes);
+    activeKey = await deriveVaultKey(trimmed, saltBytes);
     activeSalt = salt;
     const envelope = await encryptVault(emptyVault(), activeKey, salt);
     await writeEnvelope(envelope);
-  } else if (!activeKey || activeSalt !== existingEnvelope.salt) {
-    const passphrase = options.passphrase?.trim() ?? "";
-    if (!passphrase) return { ok: false, message: "Unlock your local vault before saving." };
-    const unlocked = await unlockLocalVault(passphrase);
-    if (!unlocked.ok) return unlocked;
+    return { ok: true };
   }
+
+  if (!activeKey || activeSalt !== existingEnvelope.salt) {
+    const trimmed = passphrase?.trim() ?? "";
+    if (!trimmed) return { ok: false, message: "Unlock your local vault before saving." };
+    return unlockLocalVault(trimmed);
+  }
+
+  return { ok: true };
+}
+
+export async function saveLocalObservation(
+  input: ObservationInput,
+  options: { observer: string; passphrase?: string },
+): Promise<{ ok: true; id: string } | { ok: false; message: string }> {
+  const ready = await ensureVaultForWrite(options.passphrase);
+  if (!ready.ok) return ready;
 
   const now = new Date().toISOString();
   const observation: LocalObservation = {
@@ -636,4 +819,350 @@ export async function importEncryptedVault(contents: string): Promise<VaultResul
   activeSalt = null;
   notifyVaultChange();
   return { ok: true };
+}
+
+// ---------------------------------------------------------------------------
+// Full vault read (all typed collections at once)
+// ---------------------------------------------------------------------------
+
+export type LocalVaultRead =
+  | { state: "unconfigured" }
+  | { state: "locked" }
+  | { state: "error"; message: string }
+  | {
+      state: "ready";
+      observations: LocalObservation[];
+      tasks: LocalTask[];
+      medications: LocalMedicationRecord[];
+      appointmentPrep: LocalAppointmentPrep[];
+    };
+
+export async function readLocalVaultData(): Promise<LocalVaultRead> {
+  const envelope = await readEnvelope();
+  if (!envelope) return { state: "unconfigured" };
+  if (!activeKey || activeSalt !== envelope.salt) return { state: "locked" };
+
+  try {
+    const data = await decryptVault(envelope, activeKey);
+    return {
+      state: "ready",
+      observations: data.observations,
+      tasks: data.tasks,
+      medications: data.medications,
+      appointmentPrep: data.appointmentPrep,
+    };
+  } catch {
+    activeKey = null;
+    activeSalt = null;
+    return { state: "error", message: "The local vault could not be decrypted. Unlock it again with the correct passphrase." };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Tasks
+// ---------------------------------------------------------------------------
+
+function sortTasks(list: LocalTask[]): LocalTask[] {
+  const priorityRank: Record<TaskPriority, number> = { high: 0, medium: 1, low: 2 };
+  return [...list].sort((a, b) => {
+    if (a.status !== b.status) return a.status === "open" ? -1 : 1;
+    if (a.dueOn && b.dueOn && a.dueOn !== b.dueOn) return a.dueOn < b.dueOn ? -1 : 1;
+    if (a.dueOn && !b.dueOn) return -1;
+    if (!a.dueOn && b.dueOn) return 1;
+    if (a.priority !== b.priority) return priorityRank[a.priority] - priorityRank[b.priority];
+    return Date.parse(b.createdAt) - Date.parse(a.createdAt);
+  });
+}
+
+export async function saveLocalTask(
+  input: TaskInput,
+  options: { passphrase?: string } = {},
+): Promise<{ ok: true; id: string } | { ok: false; message: string }> {
+  const ready = await ensureVaultForWrite(options.passphrase);
+  if (!ready.ok) return ready;
+
+  const task: LocalTask = {
+    id: newId(),
+    title: input.title,
+    details: input.details,
+    dueOn: input.dueOn,
+    priority: input.priority,
+    assignee: input.assignee,
+    status: "open",
+    completedAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: null,
+    localOnly: true,
+  };
+
+  const written = await mutateVault((data) => ({
+    data: { ...data, tasks: sortTasks([task, ...data.tasks]) },
+    result: task.id,
+  }));
+  return written.ok ? { ok: true, id: written.result } : written;
+}
+
+export async function updateLocalTask(id: string, input: TaskInput): Promise<VaultResult> {
+  return unwrap(
+    await mutateVault((data) => {
+      const existing = data.tasks.find((t) => t.id === id);
+      if (!existing) return { message: "That task could not be found in this browser's vault." };
+      const updated: LocalTask = {
+        ...existing,
+        title: input.title,
+        details: input.details,
+        dueOn: input.dueOn,
+        priority: input.priority,
+        assignee: input.assignee,
+        updatedAt: new Date().toISOString(),
+      };
+      return {
+        data: { ...data, tasks: sortTasks(data.tasks.map((t) => (t.id === id ? updated : t))) },
+        result: undefined,
+      };
+    }),
+  );
+}
+
+export async function setLocalTaskStatus(id: string, status: "open" | "completed"): Promise<VaultResult> {
+  return unwrap(
+    await mutateVault((data) => {
+      const existing = data.tasks.find((t) => t.id === id);
+      if (!existing) return { message: "That task could not be found in this browser's vault." };
+      const updated: LocalTask = {
+        ...existing,
+        status,
+        completedAt: status === "completed" ? new Date().toISOString() : null,
+        updatedAt: new Date().toISOString(),
+      };
+      return {
+        data: { ...data, tasks: sortTasks(data.tasks.map((t) => (t.id === id ? updated : t))) },
+        result: undefined,
+      };
+    }),
+  );
+}
+
+export async function deleteLocalTask(id: string): Promise<VaultResult> {
+  return unwrap(
+    await mutateVault((data) => {
+      if (!data.tasks.some((t) => t.id === id)) {
+        return { message: "That task could not be found in this browser's vault." };
+      }
+      return { data: { ...data, tasks: data.tasks.filter((t) => t.id !== id) }, result: undefined };
+    }),
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Medication records (record-keeping only; nothing here interprets anything)
+// ---------------------------------------------------------------------------
+
+function sortMedications(list: LocalMedicationRecord[]): LocalMedicationRecord[] {
+  const rank: Record<MedicationStatus, number> = { active: 0, paused: 1, stopped: 2 };
+  return [...list].sort((a, b) => rank[a.status] - rank[b.status] || a.name.localeCompare(b.name));
+}
+
+export async function saveLocalMedicationRecord(
+  input: MedicationRecordInput,
+  options: { passphrase?: string } = {},
+): Promise<{ ok: true; id: string } | { ok: false; message: string }> {
+  const ready = await ensureVaultForWrite(options.passphrase);
+  if (!ready.ok) return ready;
+
+  const record: LocalMedicationRecord = {
+    id: newId(),
+    name: input.name,
+    strength: input.strength,
+    instructions: input.instructions,
+    purpose: input.purpose,
+    prescriber: input.prescriber,
+    pharmacy: input.pharmacy,
+    status: input.status,
+    notes: input.notes,
+    createdAt: new Date().toISOString(),
+    updatedAt: null,
+    localOnly: true,
+  };
+
+  const written = await mutateVault((data) => ({
+    data: { ...data, medications: sortMedications([record, ...data.medications]) },
+    result: record.id,
+  }));
+  return written.ok ? { ok: true, id: written.result } : written;
+}
+
+export async function updateLocalMedicationRecord(id: string, input: MedicationRecordInput): Promise<VaultResult> {
+  return unwrap(
+    await mutateVault((data) => {
+      const existing = data.medications.find((m) => m.id === id);
+      if (!existing) return { message: "That medication could not be found in this browser's vault." };
+      const updated: LocalMedicationRecord = {
+        ...existing,
+        name: input.name,
+        strength: input.strength,
+        instructions: input.instructions,
+        purpose: input.purpose,
+        prescriber: input.prescriber,
+        pharmacy: input.pharmacy,
+        status: input.status,
+        notes: input.notes,
+        updatedAt: new Date().toISOString(),
+      };
+      return {
+        data: { ...data, medications: sortMedications(data.medications.map((m) => (m.id === id ? updated : m))) },
+        result: undefined,
+      };
+    }),
+  );
+}
+
+export async function setLocalMedicationStatus(id: string, status: MedicationStatus): Promise<VaultResult> {
+  return unwrap(
+    await mutateVault((data) => {
+      const existing = data.medications.find((m) => m.id === id);
+      if (!existing) return { message: "That medication could not be found in this browser's vault." };
+      const updated: LocalMedicationRecord = { ...existing, status, updatedAt: new Date().toISOString() };
+      return {
+        data: { ...data, medications: sortMedications(data.medications.map((m) => (m.id === id ? updated : m))) },
+        result: undefined,
+      };
+    }),
+  );
+}
+
+export async function deleteLocalMedicationRecord(id: string): Promise<VaultResult> {
+  return unwrap(
+    await mutateVault((data) => {
+      if (!data.medications.some((m) => m.id === id)) {
+        return { message: "That medication could not be found in this browser's vault." };
+      }
+      return { data: { ...data, medications: data.medications.filter((m) => m.id !== id) }, result: undefined };
+    }),
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Appointment preparation (questions, private notes, items to bring)
+// ---------------------------------------------------------------------------
+
+const PREP_TEXT_MAX = 500;
+
+function blankPrep(appointmentId: string): LocalAppointmentPrep {
+  return {
+    id: newId(),
+    appointmentId,
+    questions: [],
+    notes: null,
+    items: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: null,
+    localOnly: true,
+  };
+}
+
+async function mutatePrep(
+  appointmentId: string,
+  fn: (prep: LocalAppointmentPrep) => LocalAppointmentPrep | { message: string },
+): Promise<VaultResult> {
+  return unwrap(
+    await mutateVault((data) => {
+      const existing = data.appointmentPrep.find((p) => p.appointmentId === appointmentId) ?? blankPrep(appointmentId);
+      const outcome = fn(existing);
+      if ("message" in outcome && !("appointmentId" in outcome)) return outcome as { message: string };
+      const updated = { ...(outcome as LocalAppointmentPrep), updatedAt: new Date().toISOString() };
+      const rest = data.appointmentPrep.filter((p) => p.appointmentId !== appointmentId);
+      return { data: { ...data, appointmentPrep: [...rest, updated] }, result: undefined };
+    }),
+  );
+}
+
+function cleanPrepText(text: string): string | { message: string } {
+  const trimmed = text.trim();
+  if (!trimmed) return { message: "Write something first." };
+  if (trimmed.length > PREP_TEXT_MAX) return { message: `Keep this under ${PREP_TEXT_MAX} characters.` };
+  return trimmed;
+}
+
+export async function addPrepQuestion(
+  appointmentId: string,
+  text: string,
+  options: { passphrase?: string } = {},
+): Promise<VaultResult> {
+  const cleaned = cleanPrepText(text);
+  if (typeof cleaned !== "string") return { ok: false, ...cleaned };
+  const ready = await ensureVaultForWrite(options.passphrase);
+  if (!ready.ok) return ready;
+  return mutatePrep(appointmentId, (prep) => ({
+    ...prep,
+    questions: [...prep.questions, { id: newId(), text: cleaned, status: "open" }],
+  }));
+}
+
+export async function updatePrepQuestion(appointmentId: string, questionId: string, text: string): Promise<VaultResult> {
+  const cleaned = cleanPrepText(text);
+  if (typeof cleaned !== "string") return { ok: false, ...cleaned };
+  return mutatePrep(appointmentId, (prep) => {
+    if (!prep.questions.some((q) => q.id === questionId)) return { message: "That question could not be found." };
+    return { ...prep, questions: prep.questions.map((q) => (q.id === questionId ? { ...q, text: cleaned } : q)) };
+  });
+}
+
+export async function setPrepQuestionStatus(
+  appointmentId: string,
+  questionId: string,
+  status: "open" | "addressed",
+): Promise<VaultResult> {
+  return mutatePrep(appointmentId, (prep) => {
+    if (!prep.questions.some((q) => q.id === questionId)) return { message: "That question could not be found." };
+    return { ...prep, questions: prep.questions.map((q) => (q.id === questionId ? { ...q, status } : q)) };
+  });
+}
+
+export async function deletePrepQuestion(appointmentId: string, questionId: string): Promise<VaultResult> {
+  return mutatePrep(appointmentId, (prep) => {
+    if (!prep.questions.some((q) => q.id === questionId)) return { message: "That question could not be found." };
+    return { ...prep, questions: prep.questions.filter((q) => q.id !== questionId) };
+  });
+}
+
+export async function setPrepNotes(
+  appointmentId: string,
+  notes: string,
+  options: { passphrase?: string } = {},
+): Promise<VaultResult> {
+  const trimmed = notes.trim();
+  if (trimmed.length > 2000) return { ok: false, message: "Keep preparation notes under 2000 characters." };
+  const ready = await ensureVaultForWrite(options.passphrase);
+  if (!ready.ok) return ready;
+  return mutatePrep(appointmentId, (prep) => ({ ...prep, notes: trimmed || null }));
+}
+
+export async function addPrepItem(
+  appointmentId: string,
+  text: string,
+  options: { passphrase?: string } = {},
+): Promise<VaultResult> {
+  const cleaned = cleanPrepText(text);
+  if (typeof cleaned !== "string") return { ok: false, ...cleaned };
+  const ready = await ensureVaultForWrite(options.passphrase);
+  if (!ready.ok) return ready;
+  return mutatePrep(appointmentId, (prep) => ({
+    ...prep,
+    items: [...prep.items, { id: newId(), text: cleaned, packed: false }],
+  }));
+}
+
+export async function setPrepItemPacked(appointmentId: string, itemId: string, packed: boolean): Promise<VaultResult> {
+  return mutatePrep(appointmentId, (prep) => {
+    if (!prep.items.some((i) => i.id === itemId)) return { message: "That item could not be found." };
+    return { ...prep, items: prep.items.map((i) => (i.id === itemId ? { ...i, packed } : i)) };
+  });
+}
+
+export async function deletePrepItem(appointmentId: string, itemId: string): Promise<VaultResult> {
+  return mutatePrep(appointmentId, (prep) => {
+    if (!prep.items.some((i) => i.id === itemId)) return { message: "That item could not be found." };
+    return { ...prep, items: prep.items.filter((i) => i.id !== itemId) };
+  });
 }

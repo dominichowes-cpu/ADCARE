@@ -63,3 +63,17 @@ collections cannot corrupt older data, and the on-disk envelope format is
 unchanged (version 1). Decrypted health information never touches
 localStorage, sessionStorage, cookies, URLs, logs, analytics, server
 components, server actions, route handlers, or Postgres.
+
+
+## Local collections (session 8)
+
+Tasks, medication records, and appointment preparation now live in the same
+encrypted vault as observations, through the same single mutation path, with
+the same guarantees: plaintext exists only in tab memory, failed operations
+never alter the stored envelope, unknown fields survive every mutation, and
+the version-1 envelope (including PBKDF2 iteration metadata) is unchanged, so
+older vaults and backups open normally with new collections empty. Medication
+entries are stored verbatim as the user typed them; the application contains
+no dosage logic, interaction checking, adherence tracking, reminders, or any
+other clinical interpretation, and the UI directs all medication changes to
+the family's care team.

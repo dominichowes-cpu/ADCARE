@@ -90,6 +90,11 @@ Settings → Local private vault provides unlock, lock, change passphrase,
 encrypted export/import, and delete/reset. Observations can be edited or
 deleted from the timeline ("Edit or delete" on each entry).
 
+The same vault now also holds tasks (/tasks), the medication list
+(/medications), and per-appointment visit prep (questions, items to bring,
+private notes on /appointments). Medication records are record-keeping only —
+ADCARE never interprets instructions or advises on medication changes.
+
 ### Manual browser QA checklist (local vault)
 
 1. Create: save a first observation, choosing a passphrase → it appears in the timeline.
@@ -100,4 +105,9 @@ deleted from the timeline ("Edit or delete" on each entry).
 6. Settings → Change passphrase → confirm the old passphrase no longer unlocks, the new one does.
 7. Export an encrypted backup; Reset the vault (acknowledge the warning); Import the backup →
    unlock with the backup's passphrase → entries restored.
-8. With DevTools Network open through all of the above: no request carries observation text.
+8. Tasks: create (this can also create the vault), edit, complete, reopen, delete → dashboard open-task count follows.
+9. Medications: add, edit, mark paused, mark active, mark stopped, delete → dashboard active-med count follows.
+10. Appointment prep: add/edit/address/reopen/delete a question, check off an item to bring, save private notes.
+11. Export a backup, reset the vault, import it back → tasks, medications, prep, and observations all return.
+12. Resize to ~390px: forms, buttons, and confirmations stay usable on every page above.
+13. With DevTools Network open through all of the above: no request carries observation, task, medication, or prep text.

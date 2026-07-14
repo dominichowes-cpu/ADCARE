@@ -3,7 +3,6 @@ import {
   ButtonLink,
   Card,
   CareMapVisual,
-  Chip,
   Empty,
   IconBadge,
   IllustrationStrip,
@@ -12,12 +11,14 @@ import {
   TextLink,
 } from "@/components/ui";
 import { LocalObservationStatPill, LocalRecentObservations } from "@/components/local-observations";
-import { fmtDate, fmtDateTime, titleize } from "@/lib/labels";
+import { LocalOpenTasksList, LocalTaskStatPill } from "@/components/local-tasks";
+import { LocalMedicationCount } from "@/components/local-medications";
+import { fmtDate, fmtDateTime } from "@/lib/labels";
 import { getDashboardData } from "@/lib/data";
 
 export default async function Dashboard() {
   const session = await requireSession();
-  const { nextAppt, openTasks, update } = await getDashboardData(session);
+  const { nextAppt, update } = await getDashboardData(session);
 
   const first = session.user.displayName.split(" ")[0];
   const who = session.recipient?.preferredName ?? "your family";
@@ -48,8 +49,9 @@ export default async function Dashboard() {
                 </ButtonLink>
               </div>
             </div>
-            <div className="grid gap-3 sm:grid-cols-3">
-              <StatPill label="Open tasks" value={openTasks.length} />
+            <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
+              <StatPill label="Open tasks" value={<LocalTaskStatPill />} />
+              <StatPill label="Active meds" value={<LocalMedicationCount />} />
               <LocalObservationStatPill />
               <StatPill label="Next visit" value={nextAppt ? fmtDate(nextAppt.startsAt) : "None"} />
             </div>
@@ -84,27 +86,13 @@ export default async function Dashboard() {
         </Card>
         <Card>
           <IllustrationStrip variant="tasks" />
-          <div className="mb-4 flex items-start gap-3">
-            <IconBadge icon="clipboard" tone="gold" />
-            <div>
-              <SectionTitle>Open tasks</SectionTitle>
-              <p className="text-[0.9rem] text-mist">Loose ends that need a person.</p>
-            </div>
+          <div className="flex items-baseline justify-between">
+            <SectionTitle icon="clipboard">Open tasks</SectionTitle>
+            <TextLink href="/tasks" icon="plus">
+              All tasks
+            </TextLink>
           </div>
-          {openTasks.length ? (
-            <ul className="space-y-2">
-              {openTasks.map((t) => (
-                <li key={t.id} className="flex items-start justify-between gap-3 rounded-lg border border-line/70 bg-paper/55 px-3 py-2">
-                  <span>{t.title}</span>
-                  <Chip tone={t.priority === "high" ? "amber" : "neutral"}>
-                    {t.dueOn ? fmtDate(t.dueOn) : titleize(t.priority)}
-                  </Chip>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <Empty>Nothing on the list. Add a task when something comes up.</Empty>
-          )}
+          <LocalOpenTasksList />
         </Card>
         <Card>
           <IllustrationStrip variant="observations" />

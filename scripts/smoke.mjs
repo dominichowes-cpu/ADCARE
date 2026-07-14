@@ -8,12 +8,13 @@ const checks = [
   ["/", "Welcome back", cookie],
   ["/login", "Clarity Path", {}],
   ["/observations", "Observations", cookie],
-  ["/medications", "Lisinopril", cookie],
+  ["/medications", "never interprets", cookie],
   ["/appointments", "Appointments", cookie],
   ["/documents", "Documents", cookie],
   ["/research", "Research", cookie],
   ["/settings", "Care circle", cookie],
   ["/observations/new", "New observation", cookie],
+  ["/tasks", "shared to-do list", cookie],
   ["/observations/local-check/edit", "Edit observation", cookie],
 ];
 
