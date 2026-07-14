@@ -44,3 +44,22 @@ runbooks. Until then, the privacy stance is contractual and architectural:
 minimum collection (birth year not birth date, general location not address),
 consent-gated AI processing, and no identifiable care data to analytics or to
 research-summary models.
+
+
+## Local vault controls (session 7)
+
+Locking clears the in-memory AES key and decrypted state; nothing about the
+vault leaves the browser at any point. Changing the passphrase requires the
+current passphrase, decrypts in memory, derives a new key from a fresh random
+salt, and re-encrypts the full contents; a wrong current passphrase changes
+nothing. Reset permanently deletes the IndexedDB envelope after an explicit
+destructive acknowledgment and clears all in-memory key material. Import
+validates the envelope (structure, algorithm identifiers, iteration bounds,
+base64 decodability) before writing, warns that it replaces the current vault,
+and never destroys the existing vault on a failed or invalid import. Exports
+remain encrypted; ADCARE cannot recover a lost passphrase. The vault plaintext
+format preserves unknown fields through every mutation so future local
+collections cannot corrupt older data, and the on-disk envelope format is
+unchanged (version 1). Decrypted health information never touches
+localStorage, sessionStorage, cookies, URLs, logs, analytics, server
+components, server actions, route handlers, or Postgres.

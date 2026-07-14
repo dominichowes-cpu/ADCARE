@@ -1,6 +1,6 @@
 # BUILD_STATUS — Clarity Path
 
-Updated: 2026-07-13 (Codex local-first privacy pass)
+Updated: 2026-07-14 (Codex session 7 integration verification)
 
 ## Environment note
 This session runs in a Claude chat sandbox: filesystem resets between conversations,
@@ -117,8 +117,56 @@ continued in Claude Code against the ADCARE repo using the master build prompt.
       CLARITY_STORAGE_MODE=cloud; DATABASE_URL alone keeps the app in fixture
       shell + local-vault mode.
 
+## Done (session 7 — local observation CRUD + vault lifecycle)
+- [x] Observation edit at /observations/[id]/edit: reuses the existing form and
+      validation; prefilled from the vault; preserves id, createdAt, observer,
+      and unknown per-record fields; sets updatedAt (timeline shows "edited").
+      "Edit or delete" link on each full observation card.
+- [x] Observation delete with an accessible in-app two-step confirmation
+      (role=alertdialog, keyboard focusable, no browser confirm()).
+- [x] Missing-id and locked-vault states handled calmly on the edit screen
+      (unlock prompt reused; friendly not-found message with a way back).
+- [x] Vault lifecycle controls in Settings: unlock, lock now (clears the
+      in-memory key), change passphrase (requires current passphrase, fresh
+      random salt, full re-encrypt; wrong current changes nothing), export,
+      import with an explicit replace warning + confirmation, and delete/reset
+      behind a destructive acknowledgment. aria-live status feedback.
+- [x] Vault format made forward-compatible: unknown top-level fields and
+      unknown per-record fields survive every mutation; legacy records are
+      normalized non-destructively on decrypt; all writes flow through one
+      typed mutateVault helper; stronger envelope validation before import
+      (never destroys the existing vault on failure). Envelope format is
+      unchanged (version 1) so existing vaults and backups still open.
+- [x] No server actions, API routes, DB writes, network requests, or new npm
+      dependencies were added for any of this. Cloud mode still requires
+      CLARITY_STORAGE_MODE=cloud.
+- [x] Codex integration hardened imported version-1 vault compatibility by
+      preserving the envelope iteration count on mutations, and tightened
+      backup validation for KDF metadata, timestamps, salt, IV, and ciphertext.
+
+## Verified (session 7)
+- pnpm typecheck: clean. pnpm --filter web lint: clean. pnpm build: clean
+  (edit route compiles). Fixture-mode smoke suite green, including the new
+  /observations/[id]/edit shell.
+- Vault module exercised end-to-end in Node (real WebCrypto, in-memory
+  IndexedDB stub, throwaway script — not committed): 25/25 checks passed
+  covering create/unlock/lock, edit preserving id/createdAt/observer +
+  updatedAt, missing-id handling, delete + re-delete handling, passphrase
+  change (old passphrase rejected afterward; wrong current leaves vault
+  intact), garbage-import rejection without data loss, reset, and restoring
+  an exported backup with its original passphrase.
+- Codex real-browser verification on 2026-07-14 covered IndexedDB persistence
+  across refresh, create, unlock, edit, manual lock, passphrase rotation,
+  old-passphrase rejection, encrypted-export feedback, observation deletion,
+  full vault reset, accessible form labels, and the 390px mobile observation
+  viewport. Server logs showed no observation POST or server action.
+- Backup file selection/import remains on the README manual QA checklist; the
+  underlying export/reset/import/restore path passed Claude's 25-check vault
+  module exercise above.
+
 ## Not started
-- Remaining write paths (edit/delete observations; tasks, meds, appointments)
+- Remaining write paths (tasks, meds, appointments — will follow the local
+  vault pattern established here)
 - Auth0 production auth, invitations flow, role-based UI differences
 - Admin app, source connectors, workers/queues, AI pipeline, notifications,
   clinician briefs/PDF, document upload/storage, Playwright tests, CI

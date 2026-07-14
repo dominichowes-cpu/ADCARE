@@ -79,3 +79,25 @@ All demo data is fictional. No real patient data, secrets, or production
 credentials belong in this repository. Care data and research data never mix
 except through user-initiated actions. This product informs and organizes —
 it never diagnoses or gives medical advice.
+
+
+## Local private vault
+
+Observations are encrypted in the browser (PBKDF2 + AES-GCM via Web Crypto)
+and stored only in IndexedDB. The passphrase and derived key are never
+persisted; cloud care-data access requires `CLARITY_STORAGE_MODE=cloud`.
+Settings → Local private vault provides unlock, lock, change passphrase,
+encrypted export/import, and delete/reset. Observations can be edited or
+deleted from the timeline ("Edit or delete" on each entry).
+
+### Manual browser QA checklist (local vault)
+
+1. Create: save a first observation, choosing a passphrase → it appears in the timeline.
+2. Refresh the page → vault is locked → unlock with the passphrase → entries return.
+3. Edit an observation → change text/date → timeline shows the change and an "edited" marker.
+4. Delete an observation → confirm in the in-app dialog → it disappears everywhere.
+5. Settings → Lock vault now → observations page prompts for unlock again.
+6. Settings → Change passphrase → confirm the old passphrase no longer unlocks, the new one does.
+7. Export an encrypted backup; Reset the vault (acknowledge the warning); Import the backup →
+   unlock with the backup's passphrase → entries restored.
+8. With DevTools Network open through all of the above: no request carries observation text.

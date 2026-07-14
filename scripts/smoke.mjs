@@ -14,6 +14,7 @@ const checks = [
   ["/research", "Research", cookie],
   ["/settings", "Care circle", cookie],
   ["/observations/new", "New observation", cookie],
+  ["/observations/local-check/edit", "Edit observation", cookie],
 ];
 
 let failed = 0;
